@@ -1,0 +1,9 @@
+# filter useless stuff
+tmp/
+nando/
+*.zip
+
+# filter compare files
+*.cmp
+*.tst
+*.out

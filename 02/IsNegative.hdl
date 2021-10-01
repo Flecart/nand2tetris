@@ -1,0 +1,11 @@
+// Gets a 16 bit number and returns the most
+// significant bit
+
+CHIP IsNegative {
+    IN in[16];
+    OUT out;
+
+    PARTS:
+	And(a=in[15], b=in[15], out=out);
+
+}

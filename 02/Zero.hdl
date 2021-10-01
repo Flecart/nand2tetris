@@ -1,0 +1,10 @@
+// Chip that always returns zero when has a input
+
+CHIP Zero {
+	IN in;
+	OUT out;
+
+	PARTS:
+	Not(in=in, out=Notin);
+	And(a=in, b=Notin, out=out);
+}
