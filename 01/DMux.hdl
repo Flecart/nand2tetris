@@ -1,0 +1,19 @@
+/**
+ * Demultiplexor:
+ * {a, b} = {in, 0} if sel == 0
+ *          {0, in} if sel == 1
+ */
+
+CHIP DMux {
+    IN in, sel;
+    OUT a, b;
+
+    PARTS:
+	// Il multiplexer è molto simile a un if
+	// Io sto dando zero se sel è un certo valore
+	// altrimenti dò il valore di input
+	Zero(in=in, out=zero);
+	Mux(a=in, b=zero, sel=sel, out=a);
+	Mux(a=zero, b=in, sel=sel, out=b);
+    
+}

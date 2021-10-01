@@ -1,0 +1,25 @@
+/**
+ * 4-way demultiplexor:
+ * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
+ *                {0, in, 0, 0} if sel == 01
+ *                {0, 0, in, 0} if sel == 10
+ *                {0, 0, 0, in} if sel == 11
+ */
+
+CHIP DMux4Way {
+    IN in, sel[2];
+    OUT a, b, c, d;
+
+    PARTS:
+	// Primo passo demultiplexo, così posiziono subito la zona
+	// In cui sarà presente in e l'altra 0
+
+	// Poi cerco di definire con più precisione, pensandola
+	// Come se fosse ricorsiva, so che una metà ha uno 0,
+	// e quindi mi darà sempre 0
+	// So che l'latra metà ha un uno, che metto apposto con l'altro DMux
+
+    DMux(in=in, sel=sel[1], a=inMuxzero, b=zeroMuxin);
+	DMux(in=inMuxzero, sel=sel[0], a=a, b=b);
+	DMux(in=zeroMuxin, sel=sel[0], a=c, b=d);
+}
