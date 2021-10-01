@@ -42,5 +42,46 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+	// if (zx == 1) set x = 0        // 16-bit constant
+	// Devo utilizzare dei multiplexor per fare la scelta
+	Zero16(in=x, out=zero16);
+	Mux16(a=x, b=zero16, sel=zx, out=newX);
+
+	// if (nx == 1) set x = !x       // bitwise not
+	Not16(in=newX, out=notX);
+	Mux16(a=newX, b=notX, sel=nx, out=finalX);
+
+	// Stesso ragionamento per X
+	// Lo devo ripetere per Y
+	// if (zy == 1) set y = 0        // 16-bit constant
+	Mux16(a=y, b=zero16, sel=zy, out=newY);
+
+	// if (ny == 1) set y = !y       // bitwise not
+	Not16(in=newY, out=notY);
+	Mux16(a=newY, b=notY, sel=ny, out=finalY);
+
+	// if (f == 1)  set out = x + y  // integer 2's complement addition
+	// if (f == 0)  set out = x & y  // bitwise and
+	Add16(a=finalX, b=finalY, out=sumXY);
+	And16(a=finalX, b=finalY, out=andXY);
+	Mux16(a=andXY, b=sumXY, sel=f, out=tmpOut);
+
+	// if (no == 1) set out = !out   // bitwise not
+	Not16(in=tmpOut, out=notO);
+	Mux16(a=tmpOut, b=notO, sel=no, out=finalOut);
+
+	// if (out == 0) set zr = 1
+	// Faccio un or di tutti i numeri in out, e poi lo nego
+	// So che se c'è n'è uno che è uno (quindi out diverso da 0)
+	// Allora quello che mi torna è zr != 1
+	Or16Way(in=finalOut, out=hasOnes);
+	Not(in=hasOnes, out=zr);
+	
+	// if (out < 0) set ng = 1
+	// Out è minore di 0 solo se il primo bit è 1
+	// Quindi vado a checkare questo
+	IsNegative(in=finalOut, out=ng);
+
+	// Butto fuori il finalOut senza cambiarlo
+	And16(a=finalOut, b=finalOut, out=out);
 }

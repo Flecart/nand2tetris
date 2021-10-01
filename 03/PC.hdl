@@ -1,0 +1,54 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+	// Mi creo un mini circuito che memorizza l'istruzione da eseguire
+	// (se è 1 ho eseguito e quindi non devo eseguire più niente, altrimenti
+	// Eseguo il primo che posso e poi lo setto a 1;
+	Zero(in=reset, out=zero);
+	Or(a=zero, b=reset, out=execReset); // Inutile, ma buono per rinominare la funzione.
+	Zero16(in=in, out=zero16);
+	Mux16(a=in, b=zero16, sel=execReset, out=in1);
+
+	// Non eseguo load se ho già fatto reset.
+	// Inoltre in è uguale a sé stesso in questo caso
+	// QUindi non scrivo nemmeno un Mux16
+	Mux(a=load, b=zero, sel=execReset, out=execLoad);
+
+
+	// Poi devo incrementare a seconda del fatto che io abbia o meno
+	// eseguito exec o reset e sul valore del registro
+	Mux(a=inc, b=zero, sel=execReset, out=execIncPartial1);
+	Mux(a=inc, b=zero, sel=execLoad, out=execIncPartial2);
+	And(a=execIncPartial1, b=execIncPartial2, out=execInc);
+	Inc16(in=registerInput, out=incrementedRegisterBites);
+
+	// Mi metto ora nel caso in cui qualcosa è cambiato per forza
+	// (tanto non cambierebbe il valore in registro se fosse falso, quindi gli
+	// posso dare qualunque valore voglio)
+	// QUindi o è stato eseguito load or reset, o è stato eseguito inc
+	Mux16(a=in1, b=incrementedRegisterBites, sel=execInc, out=finalOut);
+
+	// Load è vero se ho eseguito Reset o Load o Inc
+	// se no non sto caricando niente ma modificando il vlaore nel registro
+	Or(a=execReset, b=execLoad, out=loadOrReset);
+	Or(a=loadOrReset, b=execInc, out=hasChanged);
+	Register(in=finalOut, load=hasChanged, out=registerInput);
+
+	// Solito And per buttare in output
+	And16(a=registerInput, b=registerInput, out=out);
+}
