@@ -14,6 +14,5 @@ CHIP DMux {
 	// altrimenti dò il valore di input
 	Zero(in=in, out=zero);
 	Mux(a=in, b=zero, sel=sel, out=a);
-	Mux(a=zero, b=in, sel=sel, out=b);
-    
+	And(a=in, b=in, out=b);
 }
