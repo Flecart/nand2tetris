@@ -1,0 +1,13 @@
+// 3 Memory bits that is always registring
+// used for memory
+
+CHIP Bit2 {
+    IN a, b;
+    OUT out[2];
+
+    PARTS:
+	Zero(in=a, out=zero);
+	Not(in=zero, out=one);
+    Bit(in=a, load=one, out=out[0]);
+    Bit(in=b, load=one, out=out[1]);
+}

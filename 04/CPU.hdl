@@ -39,5 +39,20 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+		Zero16(in=inM, out=zero16);
+		Not(in=zero, out=one);
+		Not16(in=zero16, out=one16);
+
+		// REGION CONTROL UNIT
+		Not(in=instruction[15], out=isA); // Useless for computer, but for me just new name
+
+		Mux16(a=finalOutM, b=instruction, sel=isA, out=muxOut);
+
+		Register(in=muxOut, load=isA, out=A);
+
+		Mux16(a=inM, b=A, sel=isA, out=AM);
+		And16(a=one16, b=A, out=addressM);
+
+		PC(in=A, load=isA, inc=instruction[15], reset=reset, out=pc);
+
 }

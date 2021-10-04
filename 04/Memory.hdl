@@ -35,6 +35,7 @@ CHIP Memory {
 	Zero(in=load, out=zero);
 	Not(in=zero, out=one);
 	Zero16(in=in, out=zero16);
+	// ENDREGION
 
 	// REGION RAM
 	// Quindi tutti i valori che hanno il bit 15 = 0 è la 16k ram
@@ -42,6 +43,7 @@ CHIP Memory {
 	Mux(a=one, b=zero, sel=address[14], out=isRam);
 	And(a=isRam, b=load, out=isRamLoad);
 	RAM16K(in=in, load=isRamLoad, address=address[0..13], out=ramOut);
+	// ENDREGION
 
 	// REGION SCREEN
 	// filtro per il byte 14 per vedere se è keyboard o screen
@@ -53,6 +55,7 @@ CHIP Memory {
 	And(a=isScreenBit, b=notIsRam, out=isScreen);
 	And(a=isScreen, b=load, out=isScreenLoad);
 	RAM8K(in=in, load=isScreenLoad, address=address[0..12], out=screenOut);
+	// ENDREGION
 
 	// REGION KEYBOARD
 	Mux(a=zero, b=one, sel=address[13], out=isKeyboardBit);
@@ -77,10 +80,12 @@ CHIP Memory {
 	And(a=isKeyboard, b=load, out=isKeyboardLoad);
 
 	Register(in=in, load=isKeyboardLoad, out=keyboardOut);
+	// ENDREGION
 
 	// REGION OUT
 	Mux16(a=keyboardOut, b=screenOut, sel=isScreen, out=keybMuxScreen);
 	Mux16(a=keybMuxScreen, b=ramOut, sel=isRam, out=out);
+	// ENDREGION
 
 	// NOTA: non ci dovrebbero essere casi in cui siano attivi i flag isRam isScreen isKeyb
 	// COntemporaneamente, si potrebbe tenere un valore (con Mux8Way) che vada a fare un check
