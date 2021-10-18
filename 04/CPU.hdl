@@ -40,19 +40,36 @@ CHIP CPU {
 
     PARTS:
 		Zero16(in=inM, out=zero16);
-		Not(in=zero, out=one);
+		Not(in=false, out=one);
 		Not16(in=zero16, out=one16);
 
 		// REGION CONTROL UNIT
-		Not(in=instruction[15], out=isA); // Useless for computer, but for me just new name
 
+        // REGISTERS
+		Not(in=instruction[15], out=isA); // Useless for computer, but for me just new name
 		Mux16(a=finalOutM, b=instruction, sel=isA, out=muxOut);
 
-		Register(in=muxOut, load=isA, out=A);
+        Or(a=instruction[5], b=isA, out=loadAregister);
+		ARegister(in=muxOut, load=loadAregister, out=A);
+		Mux16(a=A, b=inM, sel=instruction[12], out=AM);
 
-		Mux16(a=inM, b=A, sel=isA, out=AM);
-		And16(a=one16, b=A, out=addressM);
+        And(a=instruction[4], b=instruction[15], out=writeToD);
+        DRegister(in=finalOutM, load=writeToD, out=DtoALU);
 
-		PC(in=A, load=isA, inc=instruction[15], reset=reset, out=pc);
+        // SOME OUPUTS
+        ALU(x=DtoALU, y=AM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=finalOutM, zr=zr, ng=ng);
+        Mux16(a=finalOutM, b=false, sel=isA, out=outM);
 
+        bus16to15(in=A, out=addressM);
+        Mux(a=instruction[3], b=false, sel=isA, out=writeM);// Write to memory when its not a A instruction
+
+
+        // PC jumping conditions
+        isJumping(in=instruction[0..2], zr=zr, ng=ng, out=AMisJumping);
+
+        Mux(a=AMisJumping, b=false, sel=isA, out=isJumping); // don't jump in  A instruction!
+        Not(in=isJumping, out=notIsJumping);
+
+		PC(in=A, load=isJumping, inc=notIsJumping, reset=reset, out=finalPc);
+        bus16to15(in=finalPc, out=pc);
 }

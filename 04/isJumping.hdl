@@ -1,0 +1,42 @@
+CHIP isJumping {
+    IN in[3], zr, ng;
+    OUT out;
+
+    PARTS:
+        Not(in=ng, out=greater);
+        Not(in=zr, out=notZero);
+        Not(in=in[0], out=notIn0);
+        Not(in=in[1], out=notIn1);
+        Not(in=in[2], out=notIn2);
+
+        And3(a=in[0], b=notIn1, c=notIn2, out=JGT1);
+        And(a=greater, b=notZero, out=JGT2);
+        And(a=JGT1, b=JGT2, out=JGT);
+
+        And3(a=notIn0, b=in[1], c=notIn2, out=JEQ1);
+        And(a=JEQ1, b=zr, out=JEQ);
+
+        And3(a=in[0], b=in[1], c=notIn2, out=JGE1);
+        Or(a=greater, b=zr, out=JGE2);
+        And(a=JGE1, b=JGE2, out=JGE);
+
+        And3(a=notIn0, b=notIn1, c=in[2], out=JLT1);
+        And(a=JLT1, b=ng, out=JLT);
+
+        And3(a=in[0], b=notIn1, c=in[2], out=JNE1);
+        Not(in=zr, out=JNE2);
+        And(a=JNE1, b=JNE2, out=JNE);
+
+        And(a=in[2], b=in[1], out=JLE1);  
+        Or(a=zr, b=ng, out=JLE2);
+        And(a=JLE1, b=JLE2, out=JLE);
+
+        And3(a=in[0], b=in[1], c=in[2], out=JMP);
+
+        Or(a=JMP, b=JLE, out=jmp1);
+        Or(a=jmp1, b=JLT, out=jmp2);
+        Or(a=jmp2, b=JGE, out=jmp3);
+        Or(a=jmp3, b=JGT, out=jmp4);
+        Or(a=jmp4, b=JNE, out=jmp5);
+        Or(a=jmp5, b=JEQ, out=out);
+}
