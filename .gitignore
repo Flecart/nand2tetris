@@ -8,3 +8,6 @@ nando/
 *.tst
 *.out
 *.hack
+
+# scripts to quicken
+*.py
