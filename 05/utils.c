@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "utils.h"
 
 #define false 0
@@ -47,3 +48,25 @@ bool strIsNumber(char *str) {
     }
     return isNumber;
 }
+
+char *intToStr15Bin(int n) {
+    char *and = malloc(16);
+    and[15] = '\0';
+    for (int i = 14; i >= 0; i--) {
+        int bin = n & 1;
+        n = n >> 1;
+        and[i] = bin + '0';
+    }
+    return and;
+}
+
+bool hasClosingParentesis(char *str) {
+    bool hasFirstParentesis = false;
+    bool hasSecondParentesis = false;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == '(') hasFirstParentesis = true;
+        if (str[i] == ')') hasSecondParentesis = true;
+    }
+
+    return hasSecondParentesis && hasSecondParentesis;
+} 
