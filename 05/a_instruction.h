@@ -13,5 +13,7 @@ void addToMap(Map *map, char *key, int value);
 void nullifyMap(Map *map);
 int findMapValue(Map *map, char* key);
 Map initAddresses();
+void freeMap(Map *map);
+int setLabels(Map *map, char *key, int lineNumber);
 
-int aInstruction(char *number);
+int aInstruction(char *address, Map *keysMappings);

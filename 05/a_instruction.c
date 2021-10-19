@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "utils.h"
+#include "file_parser.h"
 #include "a_instruction.h"
 
 #define false 0
@@ -70,8 +71,8 @@ int findMapValue(Map *map, char* key) {
 
 
 Map initAddresses() {
-    char* keys[] = {"R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15", "SCREEN", "KBD"};
-    int values[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16384, 24576};
+    char* keys[] = {"SCREEN", "KBD", "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    int values[] = {16384, 24576,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     Map keyMaps = initMap();
     for(int i = 0; i < 18; i++) {
         addToMap(&keyMaps, keys[i], values[i]);
@@ -79,27 +80,40 @@ Map initAddresses() {
     return keyMaps;
 }
 
+int setLabels(Map *map, char *key, int lineNumber) {
+    if (!hasClosingParentesis(key)) return -1;
+    // Togliendo parentesi;
+    key++;
+    key[strlen(key) - 1] = '\0';
+    addToMap(map, key, lineNumber);
+    return 0;
+}
+
 int getAddress(char *address, Map *map) {
-    // TODO: ritorna errore se va oltre al numero di memoria consentito
     bool isNumber = strIsNumber(address);
     if (isNumber) return strToInt(address);
 
     int value = findMapValue(map, address);
     if (value > -1) return value;
-    else return -1; // TODO: create new value in the map
+    else addToMap(map, address, (*map)->value + 1);
+    return (*map)->value;
 }
 
-int aInstruction(char *address) {
-    // TODO: don't want to init and free the maps everysingle time, should
-    // be called by main func in the assembler
+int aInstruction(char *address, Map *keysMappings) {
 
-    Map keysMappings = initAddresses();
-    int addrValue = getAddress(address, &keysMappings);
+    int addrValue = getAddress(address, keysMappings);
     if (addrValue >= 0){
-        printf("got a address: %d\n", addrValue);
+        char * binaryAddress = intToStr15Bin(addrValue);
+
+        // USE THESE TO DEBUG A_INSTRUCTIONS!
+        // printf("got a address: %d\n", addrValue);
+        printf("0%s\n", binaryAddress);
+        free(binaryAddress);
     } else {
+        // This should never be run in theory
+        // but i'm keeping this here, just in case...
         printf("Not a address \n");
+        return -1;
     }
-    freeMap(&keysMappings);
     return 0;
 }
