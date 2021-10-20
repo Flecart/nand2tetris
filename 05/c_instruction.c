@@ -16,7 +16,7 @@
 // REGION GET INSTRUCTION PARTS
 
 
-int cInstruction(CMap *map,char *instruction) {
+int cInstruction(CMap *map, char *instruction, FILE *writePtr) {
     if (!isValidCInstruction(instruction)) {
         printf("Error at %s\n", instruction);
         return 1;
@@ -59,7 +59,7 @@ int cInstruction(CMap *map,char *instruction) {
         compiledCommand[i] = jump[j];
     }
 
-    printf("Compiled C: %s\n", compiledCommand);
+    fprintf(writePtr, "%s\n", compiledCommand);
     free(compiledCommand);
     return 0;
 }

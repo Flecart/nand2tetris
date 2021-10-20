@@ -133,7 +133,7 @@ int getAddress(char *address, AMap *map) {
     return -1;
 }
 
-int aInstruction(char *address, AMap *keysMappings) {
+int aInstruction(char *address, AMap *keysMappings, FILE *writePtr) {
 
     int addrValue = getAddress(address, keysMappings);
     if (addrValue >= 0){
@@ -141,13 +141,13 @@ int aInstruction(char *address, AMap *keysMappings) {
 
         // USE THESE TO DEBUG A_INSTRUCTIONS!
         // printf("got a address: %d\n", addrValue);
-        printf("0%s\n", binaryAddress);
+        fprintf(writePtr, "0%s\n", binaryAddress);
         free(binaryAddress);
     } else {
         // This should never be run in theory
         // but i'm keeping this here, just in case...
         printf("Not a address \n");
-        return -1;
+        return 1;
     }
     return 0;
 }

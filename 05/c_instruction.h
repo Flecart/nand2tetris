@@ -47,4 +47,4 @@ bool isValidDest(char *comp);
 bool isValidJump(char *comp);
 
 
-int cInstruction(CMap *map,char *instruction);
+int cInstruction(CMap *map, char *instruction, FILE *writePtr);

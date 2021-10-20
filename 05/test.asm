@@ -1,4 +1,3 @@
-=A+1;
 A|D;JMP
 AMD=1;JMP
 MD=M+D
