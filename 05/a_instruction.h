@@ -17,3 +17,7 @@ void freeMap(Map *map);
 int setLabels(Map *map, char *key, int lineNumber);
 
 int aInstruction(char *address, Map *keysMappings);
+
+// String stuff
+bool isValidChar(char c);
+bool isValidString(char *str);

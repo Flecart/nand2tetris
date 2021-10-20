@@ -89,21 +89,52 @@ int setLabels(Map *map, char *key, int lineNumber) {
     return 0;
 }
 
+bool isValidChar(char c) {
+    bool minuscolo = false;
+    bool maiuscolo = false;
+    bool numerico = false;
+    bool speciale = false;
+    if (c >= 'a' && c <= 'z') minuscolo = true;
+    else if (c >= 'A' && c <= 'Z') maiuscolo = true;
+    else if (c >= '0' && c <= '9') numerico = true;
+    else if (c == '_' || c == '.' || c == '$') speciale = true;
+
+    return minuscolo || maiuscolo || numerico || speciale;
+}
+
+bool isValidString(char *str) {
+    bool isValid = true;
+    if (str[0] >= '0' && str[0] <= '9') isValid = false;
+
+    for(int i = 0; i < strlen(str) && isValid; i++) {
+        if (!isValidChar(str[i])) isValid = false;
+    }
+
+    return isValid;
+}
+
 int getAddress(char *address, Map *map) {
     bool isNumber = strIsNumber(address);
     if (isNumber) return strToInt(address);
 
     int value = findMapValue(map, address);
     if (value > -1) return value;
-    else addToMap(map, address, (*map)->value + 1);
-    return (*map)->value;
+    
+    if (isValidString(address)) {
+        addToMap(map, address, (*map)->value + 1);
+        return (*map)->value;
+    }
+
+    printf("Error: variabile invalida: %s\n", address);
+    // errore
+    return -1;
 }
 
 int aInstruction(char *address, Map *keysMappings) {
 
     int addrValue = getAddress(address, keysMappings);
     if (addrValue >= 0){
-        char * binaryAddress = intToStr15Bin(addrValue);
+        char *binaryAddress = intToStr15Bin(addrValue);
 
         // USE THESE TO DEBUG A_INSTRUCTIONS!
         // printf("got a address: %d\n", addrValue);
