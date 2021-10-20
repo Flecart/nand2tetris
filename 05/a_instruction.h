@@ -1,22 +1,25 @@
 #pragma once
 
-typedef struct mapNode {
+#define bool short
+typedef struct AmapNode {
     char *key;
     int value;
-    struct mapNode *prev;
-} mapNode_t;
+    struct AmapNode *prev;
+} AmapNode_t;
 
-typedef mapNode_t *Map;
+typedef AmapNode_t *AMap;
 
-Map initMap();
-void addToMap(Map *map, char *key, int value);
-void nullifyMap(Map *map);
-int findMapValue(Map *map, char* key);
-Map initAddresses();
-void freeMap(Map *map);
-int setLabels(Map *map, char *key, int lineNumber);
+AMap AMap_initMap();
+void AMap_addToMap(AMap *map, char *key, int value);
+void AMap_nullifyMap(AMap *map);
+int AMap_findMapValue(AMap *map, char* key);
+AMap AMap_initAddresses();
+void AMap_freeMap(AMap *map);
+int AMap_setLabels(AMap *map, char *key, int lineNumber);
 
-int aInstruction(char *address, Map *keysMappings);
+
+
+int aInstruction(char *address, AMap *keysMappings);
 
 // String stuff
 bool isValidChar(char c);

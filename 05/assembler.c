@@ -3,17 +3,14 @@
 #include "file_parser.h"
 #include "utils.h"
 #include "a_instruction.h"
+#include "c_instruction.h"
 
 #define false 0
 #define true 1
 #define bool short
 
-Map VARIABLE_MAPS;
-
-void cInstruction(char *cmd) {
-    printf("%s hello c instruction!\n", cmd);
-    return;
-}
+AMap VARIABLE_MAPS;
+CMap COMPILER_MAPS;
 
 // STYLE ISSUE: non sono sicuro se la flag isProcessing è giusta per questa roba
 // Credo ci sia una soluzione più lineare per fare quello che sto facendo qui.
@@ -24,11 +21,11 @@ int interpret(char *line, int *codeLineNumber, bool isPreprocessing){
     if (line[0] == '@' && !isPreprocessing) {
         aInstruction(line + 1, &VARIABLE_MAPS);
     } else if ((line[1] == '=' || line[1] == ';') && !isPreprocessing){
-        cInstruction(line);
+        cInstruction(&COMPILER_MAPS, line);
     } else if (line[0] == '\0') {
         isValidInstruction = false;
     } else if (line[0] == '(') {
-        setLabels(&VARIABLE_MAPS, line, *codeLineNumber);
+        AMap_setLabels(&VARIABLE_MAPS, line, *codeLineNumber);
         isValidInstruction = false;
     } else if (!isPreprocessing) {
         printf("Istruzione invalida alla riga codice %d\n", *codeLineNumber);
@@ -55,7 +52,8 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    VARIABLE_MAPS = initAddresses();
+    VARIABLE_MAPS = AMap_initAddresses();
+    COMPILER_MAPS = CMap_initAddresses();
 
     // TODO: this part has bad style, its repeated two times
     // but it's nearly identical, should make ti into a func
@@ -77,7 +75,7 @@ int main(int argc, char *argv[]){
             char *line = getLine(filePointer, strLen);
             strLen = 0;
             interpret(line, &lineNumber, true);
-            printf("%s\n", line);
+            // printf("%s\n", line);
             free(line);
        }
     } while (ch != EOF);
@@ -105,7 +103,8 @@ int main(int argc, char *argv[]){
        }
     } while (ch != EOF);
     
-    freeMap(&VARIABLE_MAPS);
+    AMap_freeMap(&VARIABLE_MAPS);
+    CMap_initAddresses(&COMPILER_MAPS);
 
     return 0;
 }
