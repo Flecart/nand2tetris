@@ -1,8 +1,13 @@
+=A+1;
+A|D;JMP
+AMD=1;JMP
+MD=M+D
+D=A+1
 @_valid
 @1213
 @123_notvalid
 @hello
 @KBD
 @SCREEN
-@%_notvalid 
 @_....__
+@%_notvalid 

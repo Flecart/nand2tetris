@@ -9,19 +9,21 @@
 #define true 1
 #define bool short
 
-Map initMap() {
-    Map newNode = malloc(sizeof(mapNode_t));
+AMap AMap_initMap() {
+    AMap newNode = malloc(sizeof(AmapNode_t));
     newNode->value = 0;
     newNode->key = NULL;
     newNode->prev = NULL;
     return newNode; 
 }
 
-void addToMap(Map *map, char *key, int value) {
-    Map newNode = malloc(sizeof(mapNode_t));
-    char *string = malloc(strlen(key));
+void AMap_addToMap(AMap *map, char *key, int value) {
+    int len = strlen(key);
+    AMap newNode = malloc(sizeof(AmapNode_t));
+    char *string = malloc(len + 1);
     strcpy(string, key);
     newNode->key = string;
+    newNode->key[len] = '\0';
     newNode->value = value;
     newNode->prev = *map;
 
@@ -29,7 +31,7 @@ void addToMap(Map *map, char *key, int value) {
     *map = newNode;
 }
 
-void freeMap(Map *map) {
+void AMap_freeMap(AMap *map) {
     // Ci ho messo un ora a scrivere questo free, quindi ora devo passare la mia acquisita saggezza a chi legge
     // questa roba che ho scritto (quindi potrei essere io del futuro, dai)
     // Allora, il parametro che ho (cioè map) sarà sempre un pointer, perché devo passare pointer in giro 
@@ -41,7 +43,7 @@ void freeMap(Map *map) {
     // Inoltre sto guardando next->prev perché da come ho dichiarato il map, ho inizializzato il primo nodo 
     // in questo modo, quindi devo checkare il prev prima
 
-    Map next = *map; 
+    AMap next = *map; 
     do
     {
         *map = next->prev;
@@ -53,8 +55,8 @@ void freeMap(Map *map) {
     return;
 }
 
-int findMapValue(Map *map, char* key) {
-    Map next = *map;
+int AMap_findMapValue(AMap *map, char* key) {
+    AMap next = *map;
     bool found = false;
     int value = -1;
     do
@@ -70,22 +72,22 @@ int findMapValue(Map *map, char* key) {
 }
 
 
-Map initAddresses() {
+AMap AMap_initAddresses() {
     char* keys[] = {"SCREEN", "KBD", "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
     int values[] = {16384, 24576,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    Map keyMaps = initMap();
+    AMap keyMaps = AMap_initMap();
     for(int i = 0; i < 18; i++) {
-        addToMap(&keyMaps, keys[i], values[i]);
+        AMap_addToMap(&keyMaps, keys[i], values[i]);
     }
     return keyMaps;
 }
 
-int setLabels(Map *map, char *key, int lineNumber) {
-    if (!hasClosingParentesis(key)) return -1;
+int AMap_setLabels(AMap *map, char *key, int lineNumber) {
+    if (!hasClosingParentesis(key)) return 1;
     // Togliendo parentesi;
     key++;
     key[strlen(key) - 1] = '\0';
-    addToMap(map, key, lineNumber);
+    AMap_addToMap(map, key, lineNumber);
     return 0;
 }
 
@@ -113,15 +115,15 @@ bool isValidString(char *str) {
     return isValid;
 }
 
-int getAddress(char *address, Map *map) {
+int getAddress(char *address, AMap *map) {
     bool isNumber = strIsNumber(address);
     if (isNumber) return strToInt(address);
 
-    int value = findMapValue(map, address);
+    int value = AMap_findMapValue(map, address);
     if (value > -1) return value;
     
     if (isValidString(address)) {
-        addToMap(map, address, (*map)->value + 1);
+        AMap_addToMap(map, address, (*map)->value + 1);
         return (*map)->value;
     }
 
@@ -130,7 +132,7 @@ int getAddress(char *address, Map *map) {
     return -1;
 }
 
-int aInstruction(char *address, Map *keysMappings) {
+int aInstruction(char *address, AMap *keysMappings) {
 
     int addrValue = getAddress(address, keysMappings);
     if (addrValue >= 0){
