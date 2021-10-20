@@ -104,7 +104,7 @@ int main(int argc, char *argv[]){
     } while (ch != EOF);
     
     AMap_freeMap(&VARIABLE_MAPS);
-    CMap_initAddresses(&COMPILER_MAPS);
-
+    CMap_freeMap(&COMPILER_MAPS);
+    fclose(filePointer);
     return 0;
 }

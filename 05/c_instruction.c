@@ -60,6 +60,7 @@ int cInstruction(CMap *map,char *instruction) {
     }
 
     printf("Compiled C: %s\n", compiledCommand);
+    free(compiledCommand);
     return 0;
 }
 
@@ -296,7 +297,7 @@ void CMap_freeMap(CMap *map) {
         free(next);
         next = *map;
     } while (next->prev != NULL);
-
+    free(next); // nobody has freed the last next!
     return;
 }
 

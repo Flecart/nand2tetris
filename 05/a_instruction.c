@@ -51,6 +51,7 @@ void AMap_freeMap(AMap *map) {
         free(next);
         next = *map;
     } while (next->prev != NULL);
+    free(next); // nobody has freed the last next!
 
     return;
 }
