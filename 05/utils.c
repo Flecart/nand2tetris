@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "utils.h"
 
+#include <stdio.h>
+
 #define false 0
 #define true 1
 #define bool short
@@ -11,18 +13,26 @@ char* strip(char *string) {
     int i = 0;
     int len = strlen(string);
     // left strip
-    while (string[i] <= 32 && i < len){
+    while (i < len && string[i] <= 32){
         ans++;
         i += 1;
     }
 
-    // right strip
+    // right strip, should protect memory in case of len 0
+    // its important to check the index first!
     i = strlen(string) - 1;
-    while(string[i] <= 32 && i >= 0){
+    while(i >= 0 && string[i] <= 32){
         string[i] = '\0';
         i -= 1;
     }
+    // printf("Stripping -%s- to -%s-\n", string, ans);
+
     return ans;
+}
+
+int max(int a, int b) {
+    if (a > b) return a;
+    else return b;
 }
 
 int strToInt(char *str) {

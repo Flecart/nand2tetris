@@ -7,104 +7,35 @@
 
 #define false 0
 #define true 1
-#define bool short
-
-AMap VARIABLE_MAPS;
-CMap COMPILER_MAPS;
-
-// STYLE ISSUE: non sono sicuro se la flag isProcessing è giusta per questa roba
-// Credo ci sia una soluzione più lineare per fare quello che sto facendo qui.
-int interpret(char *line, int *codeLineNumber, bool isPreprocessing){
-    line = strip(line);
-    bool isValidInstruction = true;
-    bool hasError = false;
-    if (line[0] == '@' && !isPreprocessing) {
-        aInstruction(line + 1, &VARIABLE_MAPS);
-    } else if ((line[1] == '=' || line[1] == ';') && !isPreprocessing){
-        cInstruction(&COMPILER_MAPS, line);
-    } else if (line[0] == '\0') {
-        isValidInstruction = false;
-    } else if (line[0] == '(') {
-        AMap_setLabels(&VARIABLE_MAPS, line, *codeLineNumber);
-        isValidInstruction = false;
-    } else if (!isPreprocessing) {
-        printf("Istruzione invalida alla riga codice %d\n", *codeLineNumber);
-        printf("Valore primo carattere: %d\n", line[0]);
-        hasError = true;
-    }
-
-    if (isValidInstruction) *codeLineNumber += 1;
-
-    if (hasError) return -1;
-    else return 0;
-}
-
-
 
 int main(int argc, char *argv[]){
 
     if (isValidArg(argc) == 1) return 0;
+    char *writeFilename = getFileName(argv[1]);
+    printf("New filename: %s\n", writeFilename);
 
-    FILE *filePointer;
-    filePointer = fopen(argv[1], "r");
-    if (filePointer == NULL) {
+    FILE *readFilePtr, *writeFilePtr;
+    readFilePtr = fopen(argv[1], "r");
+    if (readFilePtr == NULL) {
         printf("File %s not present\n", argv[1]);
         return 0;
     }
 
-    VARIABLE_MAPS = AMap_initAddresses();
-    COMPILER_MAPS = CMap_initAddresses();
+    writeFilePtr = fopen(writeFilename, "w");
+    if (writeFilePtr == NULL) {
+        printf("File %s could not be written\n", writeFilename);
+        return 0;
+    }
 
-    // TODO: this part has bad style, its repeated two times
-    // but it's nearly identical, should make ti into a func
-    // with preprocc boolean, MAYBE PUT IT IN FILE_PARSER
-    bool isNewLine = false;
-    int lineNumber = 0;
-    int strLen = 0;
-    char ch;
-    do {
-        ch = fgetc(filePointer);
-        if (ch == '\n') {
-            isNewLine = true;
-        } else {
-            isNewLine = false;
-            strLen += 1;
-        }
+    initGlobals();
 
-        if (isNewLine) {
-            char *line = getLine(filePointer, strLen);
-            strLen = 0;
-            interpret(line, &lineNumber, true);
-            // printf("%s\n", line);
-            free(line);
-       }
-    } while (ch != EOF);
+    compile(readFilePtr, writeFilePtr, true);
+    compile(readFilePtr, writeFilePtr, false);
 
-    isNewLine = false;
-    lineNumber = 0;
-    strLen = 0;
-    fseek(filePointer, 0, SEEK_SET);
-    do {
-        ch = fgetc(filePointer);
-        if (ch == '\n') {
-            isNewLine = true;
-        } else {
-            isNewLine = false;
-            strLen += 1;
-        }
+    clearGlobals();
+    fclose(readFilePtr);
+    fclose(writeFilePtr);
+    free(writeFilename);
 
-        if (isNewLine) {
-            char *line = getLine(filePointer, strLen);
-            strLen = 0;
-            interpret(line, &lineNumber, false);
-            // printf("Ho trovato nuova riga!\n");
-            printf("%s\n", line);
-            free(line);
-       }
-    } while (ch != EOF);
-    
-    AMap_freeMap(&VARIABLE_MAPS);
-    CMap_freeMap(&COMPILER_MAPS);
-    fclose(filePointer);
     return 0;
 }

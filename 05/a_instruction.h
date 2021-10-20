@@ -17,9 +17,7 @@ AMap AMap_initAddresses();
 void AMap_freeMap(AMap *map);
 int AMap_setLabels(AMap *map, char *key, int lineNumber);
 
-
-
-int aInstruction(char *address, AMap *keysMappings);
+int aInstruction(char *address, AMap *keysMappings, FILE *writePtr);
 
 // String stuff
 bool isValidChar(char c);
