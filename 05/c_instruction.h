@@ -24,7 +24,6 @@ CMap CMap_initAddresses();
 
 bool isValidCInstruction(char *instruction);
 char *getSubstr(char *str, int begin, int end);
-int getCharPosition(char *instruction, char target);
 
 // Returns dinamically allocated C string, gets the wanted part of the instruction
 char *getDest(char *instruction);

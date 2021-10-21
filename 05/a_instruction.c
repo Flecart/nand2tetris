@@ -74,8 +74,8 @@ int AMap_findMapValue(AMap *map, char* key) {
 
 
 AMap AMap_initAddresses() {
-    char* keys[] = {"SCREEN", "KBD", "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
-    int values[] = {16384, 24576,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    char* keys[] = {"SP", "LCL", "ARG", "THIS", "THAT", "SCREEN", "KBD", "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    int values[] = {0,     1,     2,     3,      4,     16384,    24576,  0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,    11,    12,     13,    14,   15};
     AMap keyMaps = AMap_initMap();
     for(int i = 0; i < 18; i++) {
         AMap_addToMap(&keyMaps, keys[i], values[i]);
