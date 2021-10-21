@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "utils.h"
 
-#include <stdio.h>
+#define ERR_FOUND_DOUBLE -2
+#define ERR_NOT_FOUND -1
 
 #define false 0
 #define true 1
@@ -28,6 +29,21 @@ char* strip(char *string) {
     // printf("Stripping -%s- to -%s-\n", string, ans);
 
     return ans;
+}
+
+
+int getCharPosition(char *instruction, char target) {
+    int pos = ERR_NOT_FOUND;
+    bool found = false;
+    for (int i = 0; i < strlen(instruction); i++) {
+        // If there is double ; give error!
+        if (found && instruction[i] == target) return ERR_FOUND_DOUBLE;
+        if (instruction[i] == target) {
+            found = true;
+            pos = i;
+        }
+    }  
+    return pos;
 }
 
 int max(int a, int b) {

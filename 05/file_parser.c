@@ -91,13 +91,11 @@ int compileLine(char *line, int *codeLineNumber) {
     bool hasError = false;
     if (line[0] == '@') {
         hasError = aInstruction(line + 1, &VARIABLE_MAPS, WRITE_FILE);
-    } else if (strlen(line) > 1 && (line[1] == '=' || line[1] == ';')){
+    } else if (getCharPosition(line, '=') > 0 || getCharPosition(line, ';') > 0){
         hasError = cInstruction(&COMPILER_MAPS, line, WRITE_FILE);
     } else if (line[0] == '\0' || line[0] == '(') {
         isValidInstruction = false;
     } else  {
-        printf("Istruzione invalida alla riga codice %d\n", *codeLineNumber);
-        printf("Valore primo carattere: %d\n", line[0]);
         hasError = true;
     }
 
@@ -147,7 +145,7 @@ int compile(FILE *readFilePointer, FILE *writeFilePointer, bool isPreprocessing)
             strLen = 0;
             int hasError = processLine(line, &lineNumber, isPreprocessing);
             if (hasError) {
-                printf("Error in compiling codeline %d\n", lineNumber);
+                printf("Error in compiling line %d: %s\n", lineNumber, line);
                 break;
             }
             free(line);

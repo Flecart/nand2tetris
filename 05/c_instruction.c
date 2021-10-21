@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "c_instruction.h"
+#include "utils.h"
 
 #define ERR_FOUND_DOUBLE -2
 #define ERR_NOT_FOUND -1
@@ -73,7 +74,7 @@ bool isValidCInstruction(char *instruction) {
     if (hasComp && hasDest) isValid = true;
     else if (hasComp && hasJump) isValid = true;
     
-    // printf("Current state of: hasComp: %d, hasJump: %d, hasDest: %d\n", hasComp, hasJump, hasDest);
+    printf("Current state of: hasComp: %d, hasJump: %d, hasDest: %d\n", hasComp, hasJump, hasDest);
     return isValid;
 }
 
@@ -91,19 +92,6 @@ char *getSubstr(char *str, int begin, int end) {
     return substr;
 }
 
-int getCharPosition(char *instruction, char target) {
-    int pos = ERR_NOT_FOUND;
-    bool found = false;
-    for (int i = 0; i < strlen(instruction); i++) {
-        // If there is double ; give error!
-        if (found && instruction[i] == target) return ERR_FOUND_DOUBLE;
-        if (instruction[i] == target) {
-            found = true;
-            pos = i;
-        }
-    }  
-    return pos;
-}
 // ENDREGION
 // REGION GET
 
@@ -213,6 +201,7 @@ bool hasValidComp(char *instruction) {
     char *comp = getComp(instruction);
     if (comp == NULL) return false;
     bool found = false;
+    printf("Current comp %s\n", comp);
     if (isValidMemoryComp(comp)) found = true;
     else if (isValidAddressComp(comp)) found = true;
     free(comp);
@@ -230,8 +219,8 @@ bool isValidMemoryComp(char *comp) {
 
 bool isValidAddressComp(char *comp) {
     bool isValid = false;
-    char *validStrings[] = {"0", "1", "-1", "D", "A", "!D", "!A", "-D", "-A", "D+1", "A+1", "D+A", "A+D", "D-A", "A-D", "D&A", "D|A", "A&D", "A|D"};
-    for (int i = 0; i < 19; i++) {
+    char *validStrings[] = {"0", "1", "-1", "D", "A", "!D", "!A", "-D", "-A", "D+1", "A+1", "D-1", "A-1", "D+A", "A+D", "D-A", "A-D", "D&A", "D|A", "A&D", "A|D"};
+    for (int i = 0; i < 21; i++) {
         if (strcmp(comp, validStrings[i]) == 0) isValid = true;
     }
     return isValid;
@@ -323,9 +312,9 @@ CMap CMap_initAddresses() {
     CMap keyMaps = CMap_initMap();
 
     // Adding comp a=0 addrs
-    char *addresskeys[]   = {"0",       "1",       "-1",      "D",       "A",       "!D",      "!A",      "-D",      "-A",      "D+1",     "A+1",     "D+A",     "A+D",     "D-A",     "A-D",     "D&A",     "D|A",     "A&D",     "A|D"};
-    char *addressValues[] = {"0101010", "0111111", "0111010", "0001100", "0110000", "0001101", "0110001", "0001111", "0110011", "0011111", "0110111", "0000010", "0000010", "0010011", "0000111", "0000000", "0010101", "0000000", "0010101"};
-    for(int i = 0; i < 19; i++) {
+    char *addresskeys[]   = {"0",       "1",       "-1",      "D",       "A",       "!D",      "!A",      "-D",      "-A",      "D+1",     "A+1",     "D-1",     "A-1",     "D+A",     "A+D",     "D-A",     "A-D",     "D&A",     "D|A",     "A&D",     "A|D"};
+    char *addressValues[] = {"0101010", "0111111", "0111010", "0001100", "0110000", "0001101", "0110001", "0001111", "0110011", "0011111", "0110111", "0001110", "0110010", "0000010", "0000010", "0010011", "0000111", "0000000", "0010101", "0000000", "0010101"};
+    for(int i = 0; i < 21; i++) {
         CMap_addToMap(&keyMaps, addresskeys[i], addressValues[i], 0);
     }
 
