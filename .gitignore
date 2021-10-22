@@ -11,3 +11,8 @@ nando/
 
 # scripts to quicken
 *.py
+
+.vscode/
+
+# asm and assemblers for project 05
+asm_programs/
