@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
 
     if (isValidArg(argc) == 1) return 0;
     char *writeFilename = getFileName(argv[1]);
-    printf("New filename: %s\n", writeFilename);
+    // printf("New filename: %s\n", writeFilename);
 
     FILE *readFilePtr, *writeFilePtr;
     readFilePtr = fopen(argv[1], "r");
@@ -28,8 +28,14 @@ int main(int argc, char *argv[]){
     }
 
     initGlobals();
-
     compile(readFilePtr, writeFilePtr, true);
+
+    // Per come è fatto map, devi inizializzare i registri
+    // solamente dopo aver fatto la prima lettura, se no
+    // inizio a mettere sopra le variabili...
+    // Una soluzione sarebbe provare a creare due struct differenti
+    initRegisters();
+
     compile(readFilePtr, writeFilePtr, false);
 
     clearGlobals();

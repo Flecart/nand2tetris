@@ -74,7 +74,7 @@ bool isValidCInstruction(char *instruction) {
     if (hasComp && hasDest) isValid = true;
     else if (hasComp && hasJump) isValid = true;
     
-    printf("Current state of: hasComp: %d, hasJump: %d, hasDest: %d\n", hasComp, hasJump, hasDest);
+    // printf("Current state of: hasComp: %d, hasJump: %d, hasDest: %d\n", hasComp, hasJump, hasDest);
     return isValid;
 }
 
@@ -201,7 +201,7 @@ bool hasValidComp(char *instruction) {
     char *comp = getComp(instruction);
     if (comp == NULL) return false;
     bool found = false;
-    printf("Current comp %s\n", comp);
+    // printf("Current comp %s\n", comp);
     if (isValidMemoryComp(comp)) found = true;
     else if (isValidAddressComp(comp)) found = true;
     free(comp);
