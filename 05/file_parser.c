@@ -70,7 +70,7 @@ char *getFileName(char *filename) {
     // dotIndex = basename, + dot + hack + \0
     char *newFilename = malloc(dotIndex + 1 + 4 + 1);
     strcpy(newFilename, filename);
-    char *strToCopy = "hacc";
+    char *strToCopy = "hack";
     for (int i = dotIndex + 1; i < dotIndex + 1 + 4; i++) {
         newFilename[i] = strToCopy[i - dotIndex - 1];
     }
@@ -157,6 +157,10 @@ int compile(FILE *readFilePointer, FILE *writeFilePointer, bool isPreprocessing)
 void initGlobals() {
     VARIABLE_MAPS = AMap_initAddresses();
     COMPILER_MAPS = CMap_initAddresses();
+}
+
+void initRegisters() {
+    AMap_addRegisters(&VARIABLE_MAPS);
 }
 
 void clearGlobals() {

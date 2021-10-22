@@ -74,13 +74,20 @@ int AMap_findMapValue(AMap *map, char* key) {
 
 
 AMap AMap_initAddresses() {
-    char* keys[] = {"SP", "LCL", "ARG", "THIS", "THAT", "SCREEN", "KBD", "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
-    int values[] = {0,     1,     2,     3,      4,     16384,    24576,  0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,    11,    12,     13,    14,   15};
+    char* keys[] = {"SP", "LCL", "ARG", "THIS", "THAT", "SCREEN", "KBD"};
+    int values[] = {0,     1,     2,     3,      4,     16384,    24576};
     AMap keyMaps = AMap_initMap();
-    for(int i = 0; i < 18; i++) {
+    for(int i = 0; i < 7; i++) {
         AMap_addToMap(&keyMaps, keys[i], values[i]);
     }
     return keyMaps;
+}
+void AMap_addRegisters(AMap *map) {
+    char* keys[] = {"R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"};
+    int values[] = {0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,    11,    12,     13,    14,   15};
+    for(int i = 0; i < 16; i++) {
+        AMap_addToMap(map, keys[i], values[i]);
+    }
 }
 
 int AMap_setLabels(AMap *map, char *key, int lineNumber) {
