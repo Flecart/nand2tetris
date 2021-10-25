@@ -31,90 +31,23 @@ CHIP Memory {
 	// 0x5FFF 101111111111111 
 	// 0x4000 100000000000000, da questo in su è la screen memory
 
-	// REGION UTILITY
-	Zero(in=load, out=zero);
-	Not(in=zero, out=one);
-	Zero16(in=in, out=zero16);
-	// ENDREGION
-
-	// REGION RAM
-	// Quindi tutti i valori che hanno il bit 15 = 0 è la 16k ram
-	// filtro subito sul primo bit allora
-	Mux(a=one, b=zero, sel=address[14], out=isRam);
+    // RAM16
+    Not(in=address[14], out=isRam);
 	And(a=isRam, b=load, out=isRamLoad);
 	RAM16K(in=in, load=isRamLoad, address=address[0..13], out=ramOut);
-	// ENDREGION
 
-	// REGION SCREEN
-	// filtro per il byte 14 per vedere se è keyboard o screen
-	Mux(a=one, b=zero, sel=address[13], out=isScreenBit);
-
-	// Check per vedere se è on il bit per ramOut
-	// Se entrambi sono attivi, io screen non lo guardo.
+    // SCREEN
+    Not(in=address[13], out=isScreenBit);
 	Not(in=isRam, out=notIsRam);
 	And(a=isScreenBit, b=notIsRam, out=isScreen);
 	And(a=isScreen, b=load, out=isScreenLoad);
-	RAM8K(in=in, load=isScreenLoad, address=address[0..12], out=screenOut);
-	// ENDREGION
+	Screen(in=in, load=isScreenLoad, address=address[0..12], out=screenOut);
 
-	// REGION KEYBOARD
-	Mux(a=zero, b=one, sel=address[13], out=isKeyboardBit);
-
-	// Ora controllo se tutti i bit 0-13 sono zero con un or
-	Or8Way(in=address[0..7], out=OrAddress07);
-	Or(a=OrAddress07, b=address[8], out=OrAddress08);
-	Or(a=OrAddress08, b=address[9], out=OrAddress09);
-	Or(a=OrAddress09, b=address[10], out=OrAddress010);
-	Or(a=OrAddress010, b=address[11], out=OrAddress011);
-	Or(a=OrAddress011, b=address[12], out=OrAddress012);
-
-	// Se sono tutti 0 allora questo deve essere un 1, una verità
-	Not(in=OrAddress012, out=NotOrAddress012); 
-
-	// Finisco mettendo assieme questa informazione con quello del mux per sapere se è keyboard
-	And(a=isKeyboardBit, b=NotOrAddress012, out=isKeyboardPatternMatched);
-
-	// Check per vedere se è on il bit per ramOut
-	// Se entrambi sono attivi, io keyboard non lo guardo.
-	And(a=isKeyboardPatternMatched, b=notIsRam, out=isKeyboard);
-	And(a=isKeyboard, b=load, out=isKeyboardLoad);
-
-	Register(in=in, load=isKeyboardLoad, out=keyboardOut);
-	// ENDREGION
+	Keyboard(out=keyboardOut);
 
 	// REGION OUT
 	Mux16(a=keyboardOut, b=screenOut, sel=isScreen, out=keybMuxScreen);
 	Mux16(a=keybMuxScreen, b=ramOut, sel=isRam, out=out);
-	// ENDREGION
-
-	// NOTA: non ci dovrebbero essere casi in cui siano attivi i flag isRam isScreen isKeyb
-	// COntemporaneamente, si potrebbe tenere un valore (con Mux8Way) che vada a fare un check
-	// Per questi, e se c'è ritorni un valore predefinito di errore.
 
 
-	// REGION DOCS BUG
-	// il codice qui sotto è buggato e si ha l'interpretazione di questo bug
-
-	// Se seleziono l'output in questo modo allora non sto utilizzando la storia
-	// Questo muxopera sul bit in input attuale invece avrei bisogno dell'output storico
-	// storato nei registri della memoria.
-	// Per questo motivo ciò è buggato, mux troppo veloce, meglio fare un Or delle cose in out.
-	// ###############
-	// Devo mettere assieme tutte le informazioni precedenti per ottenere un output
-
-	// Se ho screen scelgo output dello screen
-	// Mux16(a=keyboardOut, b=screenOut, sel=isScreen, out=keybMuxScreen);
-
-	// Filtrando da quello che ho prima, se ho ram scelgo ram
-	// Mux16(a=keybMuxScreen, b=ramOut, sel=isRam, out=out);
-
-	// BUG 2BIT
-	// Questo non funziona nel caso in cui vado a richiedere
-	// qualcosa di altro, tipo screen, e la memoria pensa ancora che io voglio
-	// una ram... basterebbe demultiplexer e multiplexer? Non lo so ...
-	// Bit(in=isRam, load=load, out=lastIsRam);
-	// Bit(in=isScreen, load=load, out=lastIsScreen);
-
-	// Mux16(a=keyboardOut, b=screenOut, sel=lastIsScreen, out=keybMuxScreen);
-	// Mux16(a=keybMuxScreen, b=ramOut, sel=lastIsRam, out=out);
 }
