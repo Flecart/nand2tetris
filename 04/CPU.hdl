@@ -49,7 +49,7 @@ CHIP CPU {
 		Not(in=instruction[15], out=isA); // Useless for computer, but for me just new name
 		Mux16(a=finalOutM, b=instruction, sel=isA, out=muxOut);
 
-        Or(a=instruction[5], b=isA, out=loadAregister);
+        Or(a=instruction[5], b=isA, out=loadAregister); // Carica sia sel'istruzione è isA, isa se è una c instruction che dice di scrivere su A
 		ARegister(in=muxOut, load=loadAregister, out=A);
 		Mux16(a=A, b=inM, sel=instruction[12], out=AM);
 
@@ -61,7 +61,7 @@ CHIP CPU {
         Mux16(a=finalOutM, b=false, sel=isA, out=outM);
 
         bus16to15(in=A, out=addressM);
-        Mux(a=instruction[3], b=false, sel=isA, out=writeM);// Write to memory when its not a A instruction
+        Mux(a=instruction[3], b=false, sel=isA, out=writeM); // Write to memory when its not a A instruction
 
 
         // PC jumping conditions
