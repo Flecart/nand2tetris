@@ -1,2 +1,3 @@
 #pragma once
-int push(char *instr);
+char *push(char *instr, char *fileName);
+char *pop(char *instr, char *fileName);

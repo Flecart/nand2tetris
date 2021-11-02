@@ -4,7 +4,7 @@
 #include "aritTrans.h"
 #include "utils.h"
 
-int aritmeticHandler(char *line) {
+int aritmeticHandler(char *line, char *filename) {
     char *firstWord = getWord(line, 1);
     if (firstWord == NULL) {
         printf("Invalid read in instruction\n");
@@ -14,9 +14,13 @@ int aritmeticHandler(char *line) {
     printf("the first word of -%s- is -%s-\n", line, firstWord);
 
     if (strcmp(firstWord, "push") == 0) {
-        push(line);
+        char *asmCode = push(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "pop") == 0) {
-        
+        char *asmCode = pop(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "add") == 0) {
 
     } else if (strcmp(firstWord, "sub") == 0) {
@@ -44,6 +48,7 @@ int aritmeticHandler(char *line) {
 }
 
 int main() {
-    char *line = "push constant 1";
-    aritmeticHandler(line);
+    
+    char *line = "pop static 1";
+    aritmeticHandler(line, "hello");
 }
