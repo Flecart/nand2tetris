@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    char *writeFilename = getFileName(argv[1]);
+    char *writeFilename = getFileNameWithExt(argv[1]);
     // printf("New filename: %s\n", writeFilename);
 
     FILE *readFilePtr, *writeFilePtr;

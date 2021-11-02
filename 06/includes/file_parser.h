@@ -14,7 +14,8 @@ char* getLine(FILE *filePointer, int strLen);
 // Precondition: get filename to open
 // Post condition: returns the name of the name to write
 // REMEMBER TO FREE
-char *getFileName(char *filename);
+char *getFileNameWithExt(char *filename);
+char *getFilename(char *filename);
 
 // Gets the filename to open and checks if the first extension
 // terminates with .asm

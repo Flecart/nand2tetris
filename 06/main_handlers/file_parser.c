@@ -62,14 +62,9 @@ char* getLine(FILE *filePointer, int strLen) {
 }
 
 // TODO test if this works even with relative paths, absolute pats etc
-char *getFileName(char *filename) {
-    int dotIndex = 0;
-    for (int i = 0; i < strlen(filename); i++) {
-        if (filename[i] == '.') {
-            dotIndex = i;
-            break;
-        }
-    }
+char *getFileNameWithExt(char *filename) {
+    int dotIndex = getCharPosition(filename, '.');
+    if (dotIndex < 0) return NULL;
 
     // dotIndex = basename, + dot + asm + \0
     char *strToCopy = "msa";
@@ -81,4 +76,16 @@ char *getFileName(char *filename) {
     }
     newFilename[dotIndex + 1 + toCopySize] = '\0';
     return newFilename;
+}
+
+char *getFilename(char *filename) {
+    int dotIndex = getCharPosition(filename, '.');
+    if (dotIndex < 0) return NULL;
+    
+    char *file = malloc(dotIndex);
+    file[dotIndex] = '\0';
+    for (int i = 0; i < dotIndex; i++) {
+        file[i] = filename[i];
+    }
+    return file;
 }
