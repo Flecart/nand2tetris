@@ -142,3 +142,231 @@ char *pop(char *instr, char *fileName) {
     finalString[formattedLen] = '\0';
     return finalString;
 }
+
+char *add(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "add") != 0) return NULL;
+
+    char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D += *SP
+        "D=D+M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *sub(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "sub") != 0) return NULL;
+
+    char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *neg(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "neg") != 0) return NULL;
+
+    char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "M=!M\n" // *SP = !*SP
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+// correggi le istruzioni
+char *eq(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "eq") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *gt(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "gt") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *lt(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "lt") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *and(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "and") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+
+char *or(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "or") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
+char *not(char *instr) {
+    char *command = getWord(instr, 1);
+    if (strcmp(command, "not") != 0) return NULL;
+
+    char instruction[] = ""
+        char instruction[] = ""
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D= *SP
+        "D=M\n"
+        "@SP\n" //SP -= 1
+        "M=M-1\n"
+        "A=M\n" // D -= *SP
+        "D=D-M\n"
+        "M=D\n" // *SP = D
+        "@SP\n" //SP += 1
+        "M=M-1\n"
+
+    int len = strlen(instruction);
+    char *returnString = malloc(len + 1);
+
+    strncpy(returnString, instruction, len);
+    returnString[len] = '\0';
+    return returnString;
+}

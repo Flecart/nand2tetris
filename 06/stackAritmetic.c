@@ -4,6 +4,8 @@
 #include "aritTrans.h"
 #include "utils.h"
 
+void nullf(char *line, char *filananme() {};
+
 int aritmeticHandler(char *line, char *filename) {
     char *firstWord = getWord(line, 1);
     if (firstWord == NULL) {
@@ -22,23 +24,41 @@ int aritmeticHandler(char *line, char *filename) {
         printf("%s\n", asmCode);
         free(asmCode);
     } else if (strcmp(firstWord, "add") == 0) {
-
+        char *asmCode = add(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "sub") == 0) {
-
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "neg") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "eg") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "gt") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "lt") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "and") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "or") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else if (strcmp(firstWord, "not") == 0) {
-        
+        char *asmCode = nullf(line, filename);
+        printf("%s\n", asmCode);
+        free(asmCode);
     } else {
         printf("Instruction %s not valid\n", firstWord);
         return 1;
