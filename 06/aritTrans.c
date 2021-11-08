@@ -17,6 +17,16 @@
 // eq, lt, gt operations, useful for labels
 int COMP_CTR = 0;
 
+char *strInHeap(char *str) {
+    int len = strlen(str);
+    char *returnString = (char *) malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
+    strncpy(returnString, str, len);
+    returnString[len] = '\0';
+    return returnString;
+}
+
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
@@ -42,7 +52,7 @@ char *push(char *instr, char *fileName) {
     } else if (strcmp(segment, "local") == 0) {
         char *format = ""
             "@LCL\n"
-            "D=A\n"
+            "D=M\n"
             "@%d\n"
             "A=D+A\n"
             "D=M\n"
@@ -52,7 +62,7 @@ char *push(char *instr, char *fileName) {
     } else if (strcmp(segment, "argument") == 0) {
         char *format = ""
             "@ARG\n"
-            "D=A\n"
+            "D=M\n"
             "@%d\n"
             "A=D+A\n"
             "D=M\n"
@@ -75,12 +85,7 @@ char *push(char *instr, char *fileName) {
     free(command);
     free(segment);
     free(strNumber);
-
-    int formattedLen = strlen(formattedStr);
-    char *finalString = malloc((formattedLen + 1) * sizeof(char));
-    strncpy(finalString, formattedStr, formattedLen);
-    finalString[formattedLen] = '\0';
-    return finalString;
+    return strInHeap(formattedStr);
 }
 
 
@@ -115,7 +120,7 @@ char *pop(char *instr, char *fileName) {
         char *format = ""
             "%s"
             "@LCL\n"
-            "D=A\n"
+            "D=M\n"
             "@%d\n"
             "D=D+A\n"
             "%s";
@@ -125,7 +130,7 @@ char *pop(char *instr, char *fileName) {
         char *format = ""
             "%s"
             "@ARG\n"
-            "D=A\n"
+            "D=M\n"
             "@%d\n"
             "D=D+A\n"
             "%s";
@@ -148,11 +153,7 @@ char *pop(char *instr, char *fileName) {
     free(segment);
     free(strNumber);
 
-    int formattedLen = strlen(formattedStr);
-    char *finalString = malloc((formattedLen + 1) * sizeof(char));
-    strncpy(finalString, formattedStr, formattedLen);
-    finalString[formattedLen] = '\0';
-    return finalString;
+    return strInHeap(formattedStr);
 }
 
 char *add(char *instr) {
@@ -172,14 +173,8 @@ char *add(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(instruction);
 }
 
 char *sub(char *instr) {
@@ -194,18 +189,13 @@ char *sub(char *instr) {
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "D=M-D\n"
         "M=D\n" // *SP = D
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(instruction);
 }
 
 char *neg(char *instr) {
@@ -220,14 +210,8 @@ char *neg(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(instruction);
 }
 
 // correggi le istruzioni
@@ -251,7 +235,7 @@ char *eg(char *instr) {
         "@SP\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
-        "0;JMP"
+        "0;JMP\n"
         "(COMP_%d)\n" // NOTEQ
         "@SP\n"
         "M=0\n" // *SP = 0
@@ -262,14 +246,8 @@ char *eg(char *instr) {
     sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
-    int len = strlen(formattedStr);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, formattedStr, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(formattedStr);
 }
 
 char *gt(char *instr) {
@@ -292,7 +270,7 @@ char *gt(char *instr) {
         "@SP\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
-        "0;JMP"
+        "0;JMP\n"
         "(COMP_%d)\n" // NOTJGT = JLE
         "@SP\n"
         "M=0\n" // *SP = 0
@@ -303,14 +281,8 @@ char *gt(char *instr) {
     sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
-    int len = strlen(formattedStr);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, formattedStr, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(formattedStr);
 }
 
 char *lt(char *instr) {
@@ -333,7 +305,7 @@ char *lt(char *instr) {
         "@SP\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
-        "0;JMP"
+        "0;JMP\n"
         "(COMP_%d)\n" // NOTLT = JGE
         "@SP\n"
         "M=0\n" // *SP = 0
@@ -344,14 +316,8 @@ char *lt(char *instr) {
     sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
-    int len = strlen(formattedStr);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, formattedStr, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(formattedStr);
 }
 
 char *and(char *instr) {
@@ -371,14 +337,7 @@ char *and(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    return strInHeap(instruction);
 }
 
 
@@ -399,14 +358,8 @@ char *or(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(instruction);
 }
 
 char *not(char *instr) {
@@ -421,12 +374,6 @@ char *not(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-
-    strncpy(returnString, instruction, len);
-    returnString[len] = '\0';
-    return returnString;
+    free(command);
+    return strInHeap(instruction);
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "file_parser.h"
 #include "utils.h"
+#include "compiler.h"
 
 #define false 0
 #define true 1
@@ -29,6 +30,9 @@ int main(int argc, char *argv[]){
         printf("File %s could not be written\n", writeFilename);
         return 0;
     }
+
+    compile(readFilePtr, writeFilePtr, getFilename(argv[1]));
+
     printf("Compiled successfully: \n");
     fclose(readFilePtr);
     fclose(writeFilePtr);

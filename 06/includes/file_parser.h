@@ -1,5 +1,12 @@
 #pragma once
+#include<stdio.h>
 #define bool short
+
+
+struct Files {
+    FILE *input;
+    FILE *output;
+};
 
 // gets the number of the arguments
 // returns 1 if its a wrong number

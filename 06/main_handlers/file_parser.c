@@ -32,7 +32,7 @@ int isValidName(char *filename) {
 }
 
 char* getLine(FILE *filePointer, int strLen) {
-    char *currLine = malloc(strLen + 1);
+    char *currLine = (char *) malloc((strLen + 1) * sizeof(char));
     char ch;
 
     // Copying filepointer so that i can get currLine to heap
@@ -67,9 +67,9 @@ char *getFileNameWithExt(char *filename) {
     if (dotIndex < 0) return NULL;
 
     // dotIndex = basename, + dot + asm + \0
-    char *strToCopy = "msa";
+    char *strToCopy = "asm";
     int toCopySize = strlen(strToCopy);
-    char *newFilename = malloc(dotIndex + 1 + toCopySize + 1);
+    char *newFilename = (char *) malloc((dotIndex + 1 + toCopySize + 1) * sizeof(char));
     strcpy(newFilename, filename);
     for (int i = dotIndex + 1; i < dotIndex + 1 + toCopySize; i++) {
         newFilename[i] = strToCopy[i - dotIndex - 1];
@@ -82,7 +82,7 @@ char *getFilename(char *filename) {
     int dotIndex = getCharPosition(filename, '.');
     if (dotIndex < 0) return NULL;
     
-    char *file = malloc(dotIndex);
+    char *file = (char *) malloc((dotIndex) * sizeof(char));
     file[dotIndex] = '\0';
     for (int i = 0; i < dotIndex; i++) {
         file[i] = filename[i];

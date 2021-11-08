@@ -4,20 +4,14 @@
 #include "aritTrans.h"
 #include "utils.h"
 
-void printToFile(char *asmCode, char *filename) {
-    printf("%s\n", asmCode);
-    free(asmCode);
-    // filename = filename; // remove this later
-}
-
-int aritmeticHandler(char *line, char *filename) {
+int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
     char *firstWord = getWord(line, 1);
     if (firstWord == NULL) {
         printf("Invalid read in instruction\n");
         return 1;
     }
 
-    printf("the first word of -%s- is -%s-\n", line, firstWord);
+    // printf("the first word of -%s- is -%s-\n", line, firstWord);
 
     char *asmCode = NULL;
     // TODO: make enum and make this a switch
@@ -37,32 +31,35 @@ int aritmeticHandler(char *line, char *filename) {
         return 1;
     }
     if (asmCode == NULL) return 1;
-    printToFile(asmCode, filename);
+    
+    fprintf(writeToPtr, "%s", asmCode);
+    free(asmCode);
     free(firstWord);
     return 0;
 }
 
-void test_pop() {
-    char *line = "pop static 1";
-    aritmeticHandler(line, "hello");
-}
+// void test_pop() {
+//     char *line = "pop static 1";
+//     aritmeticHandler(line, "hello");
+// }
 
-void test_eg() {
-    char *line = "eg";
-    aritmeticHandler(line, "hello");
-}
+// void test_eg() {
+//     char *line = "eg";
+//     aritmeticHandler(line, "hello");
+// }
 
-void test_add() {
-    char *line = "add";
-    aritmeticHandler(line, "hello");
+// void test_add() {
+//     char *line = "add";
+//     aritmeticHandler(line, "hello");
 
-}
+// }
 
-int main() {
-    test_eg();
-    printf("\n");
-    test_add();
-    printf("\n");
-    test_eg();
-    printf("\n");
-}
+// int main_stackAritmetic() {
+//     test_eg();
+//     printf("\n");
+//     test_add();
+//     printf("\n");
+//     test_eg();
+//     printf("\n");
+//     return 0;
+// }
