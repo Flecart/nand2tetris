@@ -1,9 +1,21 @@
+// NOTA SULLE FUNZIONI COMP, BIT A BIT
+// Tutte le traduzioni delle funzioni contengono molte cose riptetute
+// Nella maggior parte cambiano solamente una parola o un segno
+// Potresti creare una funzione che cambi questo segno o parola a seconda dell'input
+// Dovresti aggiungere altri parametri al printf
+// Per lo scope di questo progetto è più semplice tenere traduzioni separate
+// Ma fai attenzione allo
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "utils.h"
 
-#define MAX_SIZE 200
+#define MAX_SIZE 500
+
+// comparison counter: global that counts the 
+// eq, lt, gt operations, useful for labels
+int COMP_CTR = 0;
 
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
@@ -65,7 +77,7 @@ char *push(char *instr, char *fileName) {
     free(strNumber);
 
     int formattedLen = strlen(formattedStr);
-    char *finalString = malloc(formattedLen + 1);
+    char *finalString = malloc((formattedLen + 1) * sizeof(char));
     strncpy(finalString, formattedStr, formattedLen);
     finalString[formattedLen] = '\0';
     return finalString;
@@ -137,7 +149,7 @@ char *pop(char *instr, char *fileName) {
     free(strNumber);
 
     int formattedLen = strlen(formattedStr);
-    char *finalString = malloc(formattedLen + 1);
+    char *finalString = malloc((formattedLen + 1) * sizeof(char));
     strncpy(finalString, formattedStr, formattedLen);
     finalString[formattedLen] = '\0';
     return finalString;
@@ -158,10 +170,12 @@ char *add(char *instr) {
         "D=D+M\n"
         "M=D\n" // *SP = D
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';
@@ -183,10 +197,11 @@ char *sub(char *instr) {
         "D=D-M\n"
         "M=D\n" // *SP = D
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';
@@ -201,12 +216,14 @@ char *neg(char *instr) {
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D= *SP
-        "M=!M\n" // *SP = !*SP
+        "M=-M\n" // *SP = -*SP
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';
@@ -214,12 +231,12 @@ char *neg(char *instr) {
 }
 
 // correggi le istruzioni
-char *eq(char *instr) {
+char *eg(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "eq") != 0) return NULL;
+    if (strcmp(command, "eg") != 0) return NULL;
+    char formattedStr[MAX_SIZE] = {'\0'};
 
-    char instruction[] = ""
-        char instruction[] = ""
+    char format[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D= *SP
@@ -228,14 +245,29 @@ char *eq(char *instr) {
         "M=M-1\n"
         "A=M\n" // D -= *SP
         "D=D-M\n"
-        "M=D\n" // *SP = D
+        "@COMP_%d\n"
+        "D;JNE\n"
+        "" // (EQ_%d,\n ma non lo metto perché inutile)
+        "@SP\n"
+        "M=1\n" // *SP = 1
+        "@ENDCOMP_%d\n"
+        "0;JMP"
+        "(COMP_%d)\n" // NOTEQ
+        "@SP\n"
+        "M=0\n" // *SP = 0
+        "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    COMP_CTR += 1;
 
-    strncpy(returnString, instruction, len);
+    int len = strlen(formattedStr);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
+
+    strncpy(returnString, formattedStr, len);
     returnString[len] = '\0';
     return returnString;
 }
@@ -244,8 +276,8 @@ char *gt(char *instr) {
     char *command = getWord(instr, 1);
     if (strcmp(command, "gt") != 0) return NULL;
 
-    char instruction[] = ""
-        char instruction[] = ""
+    char formattedStr[MAX_SIZE] = {'\0'};
+    char format[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D= *SP
@@ -254,14 +286,29 @@ char *gt(char *instr) {
         "M=M-1\n"
         "A=M\n" // D -= *SP
         "D=D-M\n"
-        "M=D\n" // *SP = D
+        "@COMP_%d\n"
+        "D;JLE\n"
+        "" // (GT%d,\n ma non lo metto perché inutile)
+        "@SP\n"
+        "M=1\n" // *SP = 1
+        "@ENDCOMP_%d\n"
+        "0;JMP"
+        "(COMP_%d)\n" // NOTJGT = JLE
+        "@SP\n"
+        "M=0\n" // *SP = 0
+        "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    COMP_CTR += 1;
 
-    strncpy(returnString, instruction, len);
+    int len = strlen(formattedStr);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
+
+    strncpy(returnString, formattedStr, len);
     returnString[len] = '\0';
     return returnString;
 }
@@ -270,8 +317,8 @@ char *lt(char *instr) {
     char *command = getWord(instr, 1);
     if (strcmp(command, "lt") != 0) return NULL;
 
-    char instruction[] = ""
-        char instruction[] = ""
+    char formattedStr[MAX_SIZE] = {'\0'};
+    char format[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D= *SP
@@ -280,14 +327,29 @@ char *lt(char *instr) {
         "M=M-1\n"
         "A=M\n" // D -= *SP
         "D=D-M\n"
-        "M=D\n" // *SP = D
+        "@COMP_%d\n"
+        "D;JGE\n"
+        "" // (LT_%d,\n ma non lo metto perché inutile)
+        "@SP\n"
+        "M=1\n" // *SP = 1
+        "@ENDCOMP_%d\n"
+        "0;JMP"
+        "(COMP_%d)\n" // NOTLT = JGE
+        "@SP\n"
+        "M=0\n" // *SP = 0
+        "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
-    int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    COMP_CTR += 1;
 
-    strncpy(returnString, instruction, len);
+    int len = strlen(formattedStr);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
+
+    strncpy(returnString, formattedStr, len);
     returnString[len] = '\0';
     return returnString;
 }
@@ -297,21 +359,22 @@ char *and(char *instr) {
     if (strcmp(command, "and") != 0) return NULL;
 
     char instruction[] = ""
-        char instruction[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
         "A=M\n" // D= *SP
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = D & *SP
+        "D=D&M\n"
         "M=D\n" // *SP = D
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';
@@ -324,21 +387,22 @@ char *or(char *instr) {
     if (strcmp(command, "or") != 0) return NULL;
 
     char instruction[] = ""
-        char instruction[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D= *SP
+        "A=M\n" // D = *SP
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = D | *SP
+        "D=D|M\n"
         "M=D\n" // *SP = D
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';
@@ -350,21 +414,17 @@ char *not(char *instr) {
     if (strcmp(command, "not") != 0) return NULL;
 
     char instruction[] = ""
-        char instruction[] = ""
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D= *SP
-        "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
-        "M=D\n" // *SP = D
+        "A=M\n"
+        "M=!M\n" // *SP = *SP
         "@SP\n" //SP += 1
-        "M=M-1\n"
+        "M=M+1\n";
 
     int len = strlen(instruction);
-    char *returnString = malloc(len + 1);
+    char *returnString = malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
 
     strncpy(returnString, instruction, len);
     returnString[len] = '\0';

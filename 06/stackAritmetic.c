@@ -4,7 +4,11 @@
 #include "aritTrans.h"
 #include "utils.h"
 
-void nullf(char *line, char *filananme() {};
+void printToFile(char *asmCode, char *filename) {
+    printf("%s\n", asmCode);
+    free(asmCode);
+    // filename = filename; // remove this later
+}
 
 int aritmeticHandler(char *line, char *filename) {
     char *firstWord = getWord(line, 1);
@@ -15,60 +19,50 @@ int aritmeticHandler(char *line, char *filename) {
 
     printf("the first word of -%s- is -%s-\n", line, firstWord);
 
-    if (strcmp(firstWord, "push") == 0) {
-        char *asmCode = push(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "pop") == 0) {
-        char *asmCode = pop(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "add") == 0) {
-        char *asmCode = add(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "sub") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "neg") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "eg") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "gt") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "lt") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "and") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "or") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else if (strcmp(firstWord, "not") == 0) {
-        char *asmCode = nullf(line, filename);
-        printf("%s\n", asmCode);
-        free(asmCode);
-    } else {
+    char *asmCode = NULL;
+    // TODO: make enum and make this a switch
+    if (strcmp(firstWord, "push") == 0) asmCode = push(line, filename);
+    else if (strcmp(firstWord, "pop") == 0) asmCode = pop(line, filename);
+    else if (strcmp(firstWord, "add") == 0) asmCode = add(line);
+    else if (strcmp(firstWord, "sub") == 0) asmCode = sub(line);
+    else if (strcmp(firstWord, "neg") == 0) asmCode = neg(line);
+    else if (strcmp(firstWord, "eg") == 0) asmCode = eg(line);
+    else if (strcmp(firstWord, "gt") == 0) asmCode = gt(line);
+    else if (strcmp(firstWord, "lt") == 0) asmCode = lt(line);
+    else if (strcmp(firstWord, "and") == 0) asmCode = and(line);
+    else if (strcmp(firstWord, "or") == 0) asmCode = or(line);
+    else if (strcmp(firstWord, "not") == 0) asmCode = not(line);
+    else {
         printf("Instruction %s not valid\n", firstWord);
         return 1;
     }
+    if (asmCode == NULL) return 1;
+    printToFile(asmCode, filename);
     free(firstWord);
     return 0;
 }
 
-int main() {
-    
+void test_pop() {
     char *line = "pop static 1";
     aritmeticHandler(line, "hello");
+}
+
+void test_eg() {
+    char *line = "eg";
+    aritmeticHandler(line, "hello");
+}
+
+void test_add() {
+    char *line = "add";
+    aritmeticHandler(line, "hello");
+
+}
+
+int main() {
+    test_eg();
+    printf("\n");
+    test_add();
+    printf("\n");
+    test_eg();
+    printf("\n");
 }
