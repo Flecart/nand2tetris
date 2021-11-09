@@ -12,7 +12,7 @@
 #include "utils.h"
 
 #ifndef MAX_SIZE
-#define MAX_SIZE 500
+#define MAX_SIZE 1000
 #endif
 
 // comparison counter: global that counts the 
@@ -252,6 +252,7 @@ char *eq(char *instr) {
         "D;JNE\n"
         "" // (EQ_%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"
@@ -290,6 +291,7 @@ char *gt(char *instr) {
         "D;JLE\n"
         "" // (GT%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"
@@ -328,6 +330,7 @@ char *lt(char *instr) {
         "D;JGE\n"
         "" // (LT_%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"

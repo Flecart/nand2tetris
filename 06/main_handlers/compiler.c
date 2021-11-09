@@ -3,6 +3,7 @@
 #include <string.h>
 #include "stackAritmetic.h"
 #include "programFlow.h"
+#include "functions.h"
 #include "file_parser.h"
 #include "utils.h"
 
@@ -15,10 +16,12 @@ int handleInstruction(char *instr, char *filename, FILE *writeFilePointer) {
     char *firstWord = getWord(instr, 1);
     Arits arits = getArits(firstWord);
     Flows flows = getFlows(firstWord);
+    Funcs funcs = getFuncs(firstWord);
 
     int retCode;
-    if (arits != ARITS_UNKNOWN) retCode = aritmeticHandler(instr, filename, writeFilePointer);
+    if      (arits != ARITS_UNKNOWN) retCode = aritmeticHandler(instr, filename, writeFilePointer);
     else if (flows != FLOWS_UNKNOWN) retCode = programFlow(instr, writeFilePointer);
+    else if (funcs != FUNC_UNKNOWN)  retCode = functions(instr, writeFilePointer);
     else if (strlen(instr) <= 0) retCode = 0;
     else {
         printf("This line -%s- is unknown\n", instr);

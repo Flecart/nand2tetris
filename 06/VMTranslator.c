@@ -33,8 +33,6 @@ int main(int argc, char *argv[]){
     }
 
     compile(readFilePtr, writeFilePtr, filename);
-
-    printf("Compiled successfully: \n");
     fclose(readFilePtr);
     fclose(writeFilePtr);
     free(writeFilename);

@@ -11,6 +11,6 @@ Flows getFlows(char *word);
 
 int programFlow(char *line, FILE *writeToPtr);
 
-char *label(char *line);
-char *if_goto(char *line);
-char *gotoCommand(char *line);
+char *label(char *instruction);
+char *if_goto(char *instruction);
+char *gotoCommand(char *instruction);
