@@ -11,21 +11,13 @@
 #include <stdlib.h>
 #include "utils.h"
 
+#ifndef MAX_SIZE
 #define MAX_SIZE 500
+#endif
 
 // comparison counter: global that counts the 
 // eq, lt, gt operations, useful for labels
 int COMP_CTR = 0;
-
-char *strInHeap(char *str) {
-    int len = strlen(str);
-    char *returnString = (char *) malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-    strncpy(returnString, str, len);
-    returnString[len] = '\0';
-    return returnString;
-}
 
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);

@@ -1,8 +1,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "stackAritmetic.h"
 #include "aritTrans.h"
 #include "utils.h"
+
+Arits getArits(char *word) {
+    Arits arits = ARITS_UNKNOWN;
+    
+    if (strcmp(word, "push") == 0) arits = PUSH;
+    else if (strcmp(word, "pop") == 0) arits = POP;
+    else if (strcmp(word, "add") == 0) arits = ADD;
+    else if (strcmp(word, "sub") == 0) arits = SUB;
+    else if (strcmp(word, "neg") == 0) arits = NEG;
+    else if (strcmp(word, "eg") == 0) arits = EG;
+    else if (strcmp(word, "gt") == 0) arits = GT;
+    else if (strcmp(word, "lt") == 0) arits = LT;
+    else if (strcmp(word, "and") == 0) arits = AND;
+    else if (strcmp(word, "or") == 0) arits = OR;
+    else if (strcmp(word, "not") == 0) arits = NOT;
+    return arits;
+}
 
 int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
     char *firstWord = getWord(line, 1);
@@ -10,25 +28,25 @@ int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
         printf("Invalid read in instruction\n");
         return 1;
     }
+    char *asmCode = NULL;
 
     // printf("the first word of -%s- is -%s-\n", line, firstWord);
-
-    char *asmCode = NULL;
-    // TODO: make enum and make this a switch
-    if (strcmp(firstWord, "push") == 0) asmCode = push(line, filename);
-    else if (strcmp(firstWord, "pop") == 0) asmCode = pop(line, filename);
-    else if (strcmp(firstWord, "add") == 0) asmCode = add(line);
-    else if (strcmp(firstWord, "sub") == 0) asmCode = sub(line);
-    else if (strcmp(firstWord, "neg") == 0) asmCode = neg(line);
-    else if (strcmp(firstWord, "eg") == 0) asmCode = eg(line);
-    else if (strcmp(firstWord, "gt") == 0) asmCode = gt(line);
-    else if (strcmp(firstWord, "lt") == 0) asmCode = lt(line);
-    else if (strcmp(firstWord, "and") == 0) asmCode = and(line);
-    else if (strcmp(firstWord, "or") == 0) asmCode = or(line);
-    else if (strcmp(firstWord, "not") == 0) asmCode = not(line);
-    else {
-        printf("Instruction %s not valid\n", firstWord);
-        return 1;
+    Arits arits = getArits(firstWord);
+    switch(arits) {
+        case PUSH:  asmCode = push(line, filename); break;
+        case POP:   asmCode = pop(line, filename);  break;
+        case ADD:   asmCode = add(line);            break;
+        case SUB:   asmCode = sub(line);            break;
+        case NEG:   asmCode = neg(line);            break;
+        case EG:    asmCode = eg(line);             break;
+        case GT:    asmCode = gt(line);             break;
+        case LT:    asmCode = lt(line);             break;
+        case AND:   asmCode = and(line);            break;
+        case OR:    asmCode = or(line);             break;
+        case NOT:   asmCode = not(line);            break;
+        default:
+            printf("Instruction %s not valid\n", firstWord);
+            return 1;
     }
     if (asmCode == NULL) return 1;
     
@@ -37,29 +55,3 @@ int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
     free(firstWord);
     return 0;
 }
-
-// void test_pop() {
-//     char *line = "pop static 1";
-//     aritmeticHandler(line, "hello");
-// }
-
-// void test_eg() {
-//     char *line = "eg";
-//     aritmeticHandler(line, "hello");
-// }
-
-// void test_add() {
-//     char *line = "add";
-//     aritmeticHandler(line, "hello");
-
-// }
-
-// int main_stackAritmetic() {
-//     test_eg();
-//     printf("\n");
-//     test_add();
-//     printf("\n");
-//     test_eg();
-//     printf("\n");
-//     return 0;
-// }

@@ -149,3 +149,13 @@ char *getWord(char *str, int nword) {
     }
     return word;
 }
+
+char *strInHeap(char *str) {
+    int len = strlen(str);
+    char *returnString = (char *) malloc((len + 1) * sizeof(char));
+    if (returnString == NULL) return NULL;
+
+    strncpy(returnString, str, len);
+    returnString[len] = '\0';
+    return returnString;
+}

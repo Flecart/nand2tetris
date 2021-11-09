@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stackAritmetic.h"
+#include "programFlow.h"
 #include "file_parser.h"
 #include "utils.h"
 
@@ -11,11 +12,20 @@
 
 int handleInstruction(char *instr, char *filename, FILE *writeFilePointer) {
     instr = strip(instr);
+    char *firstWord = getWord(instr, 1);
+    Arits arits = getArits(firstWord);
+    Flows flows = getFlows(firstWord);
     // TODO recognize instruction and call right function!
-    if (strlen(instr) > 0) {
+    if (arits != ARITS_UNKNOWN) {
         return aritmeticHandler(instr, filename, writeFilePointer);
+    } else if (flows != FLOWS_UNKNOWN) {
+        return programFlow(instr, writeFilePointer);
+    } else if (strlen(instr) <= 0) {
+        return 0;
+    } else {
+        printf("This line -%s- is unknown\n", instr);
     }
-
+    free(firstWord);
     return 0;
 }
 
@@ -47,6 +57,6 @@ void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename) {
        }
     } while (ch != EOF);
 
-    fprintf(writeFilePointer, "(END)\n@END\n0;JMP");
+    fprintf(writeFilePointer, "(END)\n@END\n0;JMP\n");
     return;
 }

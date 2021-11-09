@@ -7,7 +7,7 @@ SRC = ./
 GENDIR = $(SRC)/main_handlers
 TEST = $(SRC)/test
 
-OBJS = VMTranslator.o file_parser.o utils.o stackAritmetic.o aritTrans.o compiler.o 
+OBJS = VMTranslator.o file_parser.o utils.o stackAritmetic.o aritTrans.o compiler.o programFlow.o
 
 VPATH = $(SRC):$(GENDIR):$(HEADERS):$(TEST)
 
@@ -29,7 +29,9 @@ stack_test: aritTrans.o stack_test.o utils.o
 
 VMTranslator.o: 	VMTranslator.c      
 
-compiler.o: 		compiler.c 			compiler.h 	stackAritmetic.o utils.o
+compiler.o: 		compiler.c 			compiler.h 	stackAritmetic.o utils.o programFlow.o
+
+programFlow.o: 		programFlow.c 		utils.h 	programFlow.h 
 
 stackAritmetic.o: 	stackAritmetic.c	utils.h		aritTrans.o
 aritTrans.o: 		aritTrans.c			aritTrans.h	
