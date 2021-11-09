@@ -52,6 +52,7 @@ int max(int a, int b) {
 }
 
 int strToInt(char *str) {
+    if (!strIsNumber(str)) return -1;
     int len = strlen(str);
     int ans = 0, base = 1;
     for(int i = len - 1; i >= 0; i--) {
@@ -96,3 +97,55 @@ bool hasClosingParentesis(char *str) {
 
     return hasFirstParentesis && hasSecondParentesis;
 } 
+
+char *getFirstWord(char *str) {
+    int space = -1;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == ' ') {
+            space = i;
+            break;
+        }
+    }
+
+    // if havent found a space, put the end of the string.
+    if (space == -1) space = strlen(str);
+
+    char *firstWord = malloc(space);
+    firstWord[space - 1] = '\0';
+
+    for (int i = 0; i < space; i++) {
+        firstWord[i] = str[i];
+    }
+    return firstWord;
+}
+
+char *getWord(char *str, int nword) {
+    if (nword <= 0) return NULL;
+
+    int spaceCount = 0;
+    int lastSpacePosition = -1;
+    int currSpacePosition = -1;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == ' ') {
+            spaceCount += 1;
+            lastSpacePosition = currSpacePosition + 1; // skip the space
+            currSpacePosition = i;
+        }
+        
+        if (spaceCount == nword) break;
+    }
+
+    // update in case its the last word of the string
+    if (spaceCount + 1 == nword) {
+        lastSpacePosition = currSpacePosition + 1;
+        currSpacePosition = strlen(str);
+    } else if (spaceCount + 1 < nword) return NULL;
+
+    int len = currSpacePosition - lastSpacePosition;
+    char *word = malloc(len + 1);
+    word[len] = '\0';
+    for (int i = lastSpacePosition; i < currSpacePosition; i++) {
+        word[i - lastSpacePosition] = str[i];
+    }
+    return word;
+}
