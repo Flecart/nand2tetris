@@ -15,18 +15,17 @@ int handleInstruction(char *instr, char *filename, FILE *writeFilePointer) {
     char *firstWord = getWord(instr, 1);
     Arits arits = getArits(firstWord);
     Flows flows = getFlows(firstWord);
-    // TODO recognize instruction and call right function!
-    if (arits != ARITS_UNKNOWN) {
-        return aritmeticHandler(instr, filename, writeFilePointer);
-    } else if (flows != FLOWS_UNKNOWN) {
-        return programFlow(instr, writeFilePointer);
-    } else if (strlen(instr) <= 0) {
-        return 0;
-    } else {
+
+    int retCode;
+    if (arits != ARITS_UNKNOWN) retCode = aritmeticHandler(instr, filename, writeFilePointer);
+    else if (flows != FLOWS_UNKNOWN) retCode = programFlow(instr, writeFilePointer);
+    else if (strlen(instr) <= 0) retCode = 0;
+    else {
         printf("This line -%s- is unknown\n", instr);
+        retCode = 1;
     }
     free(firstWord);
-    return 0;
+    return retCode;
 }
 
 void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename) {
@@ -51,6 +50,7 @@ void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename) {
             int hasError = handleInstruction(line, filename, writeFilePointer);
             if (hasError) {
                 printf("Error in compiling line %d: %s\n", lineNumber, line);
+                free(line);
                 break;
             }
             free(line);

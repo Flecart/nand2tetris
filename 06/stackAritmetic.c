@@ -13,7 +13,7 @@ Arits getArits(char *word) {
     else if (strcmp(word, "add") == 0) arits = ADD;
     else if (strcmp(word, "sub") == 0) arits = SUB;
     else if (strcmp(word, "neg") == 0) arits = NEG;
-    else if (strcmp(word, "eg") == 0) arits = EG;
+    else if (strcmp(word, "eq") == 0) arits = EQ;
     else if (strcmp(word, "gt") == 0) arits = GT;
     else if (strcmp(word, "lt") == 0) arits = LT;
     else if (strcmp(word, "and") == 0) arits = AND;
@@ -26,6 +26,7 @@ int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
     char *firstWord = getWord(line, 1);
     if (firstWord == NULL) {
         printf("Invalid read in instruction\n");
+        free(firstWord);
         return 1;
     }
     char *asmCode = NULL;
@@ -38,7 +39,7 @@ int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
         case ADD:   asmCode = add(line);            break;
         case SUB:   asmCode = sub(line);            break;
         case NEG:   asmCode = neg(line);            break;
-        case EG:    asmCode = eg(line);             break;
+        case EQ:    asmCode = eq(line);             break;
         case GT:    asmCode = gt(line);             break;
         case LT:    asmCode = lt(line);             break;
         case AND:   asmCode = and(line);            break;
@@ -46,9 +47,13 @@ int aritmeticHandler(char *line, char *filename, FILE *writeToPtr) {
         case NOT:   asmCode = not(line);            break;
         default:
             printf("Instruction %s not valid\n", firstWord);
+            free(firstWord);
             return 1;
     }
-    if (asmCode == NULL) return 1;
+    if (asmCode == NULL) {
+        free(firstWord);
+        return 1;
+    }
     
     fprintf(writeToPtr, "%s", asmCode);
     free(asmCode);

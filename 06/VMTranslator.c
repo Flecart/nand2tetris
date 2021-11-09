@@ -16,6 +16,7 @@ int main(int argc, char *argv[]){
     }
 
     char *writeFilename = getFileNameWithExt(argv[1]);
+    char *filename = getFilename(argv[1]);
     // printf("New filename: %s\n", writeFilename);
 
     FILE *readFilePtr, *writeFilePtr;
@@ -31,12 +32,13 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    compile(readFilePtr, writeFilePtr, getFilename(argv[1]));
+    compile(readFilePtr, writeFilePtr, filename);
 
     printf("Compiled successfully: \n");
     fclose(readFilePtr);
     fclose(writeFilePtr);
     free(writeFilename);
+    free(filename);
 
     return 0;
 }

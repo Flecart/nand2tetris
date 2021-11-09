@@ -6,7 +6,7 @@ typedef enum {
     ADD,
     SUB,
     NEG,
-    EG, 
+    EQ, 
     GT, 
     LT, 
     AND, 

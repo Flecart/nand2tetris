@@ -33,9 +33,13 @@ int programFlow(char *line, FILE *writeToPtr) {
         case GOTO:      asmCode = gotoCommand(line);    break;
         default:
             printf("Instruction %s not valid\n", firstWord);
+            free(firstWord);
             return 1;
     }
-    if (asmCode == NULL) return 1;
+    if (asmCode == NULL) {
+        free(firstWord);
+        return 1;
+    }
     
     fprintf(writeToPtr, "%s", asmCode);
     free(asmCode);
@@ -46,7 +50,11 @@ int programFlow(char *line, FILE *writeToPtr) {
 char *label(char *instr) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
-    if (strcmp(command, "label") != 0 || label == NULL) return NULL;
+    if (strcmp(command, "label") != 0 || label == NULL) {
+        free(command);
+        free(label);
+        return NULL;
+    }
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = "(%s)\n";
@@ -60,7 +68,11 @@ char *label(char *instr) {
 char *if_goto(char *instr) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
-    if (strcmp(command, "if-goto") != 0 || label == NULL) return NULL;
+    if (strcmp(command, "if-goto") != 0 || label == NULL) {
+        free(command);
+        free(label);
+        return NULL;
+    }
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
@@ -80,7 +92,11 @@ char *if_goto(char *instr) {
 char *gotoCommand(char *instr) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
-    if (strcmp(command, "goto") != 0 || label == NULL) return NULL;
+    if (strcmp(command, "goto") != 0 || label == NULL) {
+        free(command);
+        free(label);
+        return NULL;
+    }
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = "@%s\n0;JMP\n";
