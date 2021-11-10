@@ -1,28 +1,19 @@
 CC = gcc
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Wall
 CPPFLAGS = -I$(HEADERS)
 
 HEADERS = ./includes
-SRC = ./
+SRC = ./src
 GENDIR = $(SRC)/main_handlers
-TEST = $(SRC)/test
+TRANSLATE = $(SRC)/translate
 
 OBJS = VMTranslator.o file_parser.o utils.o stackAritmetic.o aritTrans.o compiler.o programFlow.o functions.o
 
-VPATH = $(SRC):$(GENDIR):$(HEADERS):$(TEST)
+VPATH = $(SRC):$(GENDIR):$(HEADERS):$(TEST):$(TRANSLATE)
 
 VMTranslator: $(OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS)  $(OBJS) -o $@
 	make clean 
-
-TMP = stackAritmetic.o utils.o aritTrans.o
-stackAritmetic: $(TMP)
-	$(CC) $(CFLAGS) $(CPPFLAGS)  $(TMP) -o $@
-	make clean2
-
-stack_test: aritTrans.o stack_test.o utils.o
-	$(CC) $(CFLAGS) $(CPPFLAGS) aritTrans.o stack_test.o utils.o -o $@
-	rm *.o
 
 %.o : %.c 
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c 
@@ -40,13 +31,9 @@ stackAritmetic.o: 	stackAritmetic.c	utils.h		aritTrans.o
 aritTrans.o: 		aritTrans.c			aritTrans.h	
 # end zone
 
+# file input management and general utilities
 file_parser.o: 		file_parser.c 		utils.h
 utils.o: 			utils.c 			utils.h
 
-stack_test.o: 		stack_test.c
-
 clean:
 	rm $(OBJS)
-
-clean2: 
-	rm $(TMP)

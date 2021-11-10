@@ -18,6 +18,6 @@ char *returnFunction();
 
 // some utils
 char *getCallLabel(char *funcName, int nparams);
-char *pushAddress(char *addressName);
+char *pushAddress(char *addressName, char mOrA);
 char *getGotoAddr(char *addressName);
 char *assemblyRestore(char *regName, int offset);

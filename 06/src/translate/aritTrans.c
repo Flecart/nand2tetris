@@ -246,8 +246,8 @@ char *eq(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JNE\n"
         "" // (EQ_%d,\n ma non lo metto perché inutile)
@@ -258,6 +258,7 @@ char *eq(char *instr) {
         "0;JMP\n"
         "(COMP_%d)\n" // NOTEQ
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
@@ -285,8 +286,8 @@ char *gt(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JLE\n"
         "" // (GT%d,\n ma non lo metto perché inutile)
@@ -297,6 +298,7 @@ char *gt(char *instr) {
         "0;JMP\n"
         "(COMP_%d)\n" // NOTJGT = JLE
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
@@ -324,8 +326,8 @@ char *lt(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JGE\n"
         "" // (LT_%d,\n ma non lo metto perché inutile)
@@ -336,6 +338,7 @@ char *lt(char *instr) {
         "0;JMP\n"
         "(COMP_%d)\n" // NOTLT = JGE
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1

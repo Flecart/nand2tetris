@@ -93,11 +93,11 @@ char *call(char *instr) {
     CALL_COUNTER += 1;
     char *gotoFunc = getGotoAddr(funcName);
 
-    char *pushRet = pushAddress(callLabel);
-    char *pushLCL = pushAddress("LCL");
-    char *pushARG = pushAddress("ARG");
-    char *pushTHIS = pushAddress("THIS");
-    char *pushTHAT = pushAddress("THAT");
+    char *pushRet = pushAddress(callLabel, 'A');
+    char *pushLCL = pushAddress("LCL", 'M');
+    char *pushARG = pushAddress("ARG", 'M');
+    char *pushTHIS = pushAddress("THIS", 'M');
+    char *pushTHAT = pushAddress("THAT", 'M');
 
     char *gotoString = gotoCommand(gotoFunc);
     char formattedStr[MAX_SIZE] = {'\0'};
@@ -117,7 +117,7 @@ char *call(char *instr) {
         "M=D\n"
         "%s"  //GOTO
         "(%s)\n"; // LABEL
-    sprintf(formattedStr, format, pushRet, pushLCL, pushARG, pushTHIS, pushTHAT, funcParamsNum - 5, gotoString, callLabel);
+    sprintf(formattedStr, format, pushRet, pushLCL, pushARG, pushTHIS, pushTHAT, funcParamsNum + 5, gotoString, callLabel);
 
     free(funcName);
     free(funcParams);
@@ -128,6 +128,7 @@ char *call(char *instr) {
     free(pushARG);
     free(pushTHIS);
     free(pushTHAT);
+    free(gotoString);
     return strInHeap(formattedStr);
 }
 
@@ -138,18 +139,18 @@ char *getCallLabel(char *funcName, int counter) {
     return strInHeap(formattedStr);
 }
 
-char *pushAddress(char *addressName) {
+char *pushAddress(char *addressName, char mOrA) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
         "@%s\n"
-        "D=M\n"
+        "D=%c\n"
         "@SP\n"
         "A=M\n"
         "M=D\n"
         "@SP\n"
         "M=M+1\n";
 
-    sprintf(formattedStr, format, addressName);
+    sprintf(formattedStr, format, addressName, mOrA);
     return strInHeap(formattedStr);
 }
 
@@ -209,8 +210,7 @@ char *assemblyRestore(char *regName, int offset) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
         "@R13\n" // D=*(FRAME - OFFSET)
-        "A=M\n" 
-        "D=A\n"
+        "D=M\n"
         "@%d\n"
         "D=D-A\n"
         "A=D\n"

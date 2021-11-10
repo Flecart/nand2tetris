@@ -32,6 +32,7 @@ int handleInstruction(char *instr, char *filename, FILE *writeFilePointer) {
 }
 
 void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename) {
+    fprintf(writeFilePointer, "@256\nD=A\n@R0\nM=D\n"); // SET STANDARD SP POINTER
     fseek(readFilePointer, 0, SEEK_SET);
 
     bool isNewLine = false;
