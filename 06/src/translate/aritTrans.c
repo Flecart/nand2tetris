@@ -11,27 +11,24 @@
 #include <stdlib.h>
 #include "utils.h"
 
-#define MAX_SIZE 500
+#ifndef MAX_SIZE
+#define MAX_SIZE 1000
+#endif
 
 // comparison counter: global that counts the 
 // eq, lt, gt operations, useful for labels
 int COMP_CTR = 0;
 
-char *strInHeap(char *str) {
-    int len = strlen(str);
-    char *returnString = (char *) malloc((len + 1) * sizeof(char));
-    if (returnString == NULL) return NULL;
-
-    strncpy(returnString, str, len);
-    returnString[len] = '\0';
-    return returnString;
-}
-
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
     char *strNumber = getWord(instr, 3);
-    if (strcmp(command, "push") != 0 || segment == NULL || strNumber == NULL) return NULL;
+    if (strcmp(command, "push") != 0 || segment == NULL || strNumber == NULL) {
+        free(command);
+        free(segment);
+        free(strNumber);
+        return NULL;
+    }
 
     int number = strToInt(strNumber);
     char formattedStr[MAX_SIZE] = {'\0'};
@@ -78,9 +75,11 @@ char *push(char *instr, char *fileName) {
         sprintf(formattedStr, format, fileName, number, addToStack);
     } else {
         printf("Invalid segment %s\n", segment);
+        free(command);
+        free(segment);
+        free(strNumber);
         return NULL;
     }
-
 
     free(command);
     free(segment);
@@ -93,7 +92,12 @@ char *pop(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
     char *strNumber = getWord(instr, 3);
-    if (strcmp(command, "pop") != 0 || segment == NULL || strNumber == NULL) return NULL;
+    if (strcmp(command, "pop") != 0 || segment == NULL || strNumber == NULL) {
+        free(command);
+        free(segment);
+        free(strNumber);
+        return NULL;
+    }
     int number = strToInt(strNumber);
 
     char formattedStr[MAX_SIZE] = {'\0'};
@@ -146,6 +150,9 @@ char *pop(char *instr, char *fileName) {
         sprintf(formattedStr, format, removeFromStack, fileName, number, writeSegment);
     } else {
         printf("Invalid segment %s\n", segment);
+        free(command);
+        free(segment);
+        free(strNumber);
         return NULL;
     }
 
@@ -158,7 +165,10 @@ char *pop(char *instr, char *fileName) {
 
 char *add(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "add") != 0) return NULL;
+    if (strcmp(command, "add") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
@@ -179,7 +189,10 @@ char *add(char *instr) {
 
 char *sub(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "sub") != 0) return NULL;
+    if (strcmp(command, "sub") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
@@ -200,7 +213,10 @@ char *sub(char *instr) {
 
 char *neg(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "neg") != 0) return NULL;
+    if (strcmp(command, "neg") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
@@ -215,9 +231,12 @@ char *neg(char *instr) {
 }
 
 // correggi le istruzioni
-char *eg(char *instr) {
+char *eq(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "eg") != 0) return NULL;
+    if (strcmp(command, "eq") != 0) {
+        free(command);
+        return NULL;
+    }
     char formattedStr[MAX_SIZE] = {'\0'};
 
     char format[] = ""
@@ -227,17 +246,19 @@ char *eg(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JNE\n"
         "" // (EQ_%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"
         "(COMP_%d)\n" // NOTEQ
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
@@ -252,7 +273,10 @@ char *eg(char *instr) {
 
 char *gt(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "gt") != 0) return NULL;
+    if (strcmp(command, "gt") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
@@ -262,17 +286,19 @@ char *gt(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JLE\n"
         "" // (GT%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"
         "(COMP_%d)\n" // NOTJGT = JLE
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
@@ -287,7 +313,10 @@ char *gt(char *instr) {
 
 char *lt(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "lt") != 0) return NULL;
+    if (strcmp(command, "lt") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
@@ -297,17 +326,19 @@ char *lt(char *instr) {
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=D-M\n"
+        "A=M\n" // D = *SP - D
+        "D=M-D\n"
         "@COMP_%d\n"
         "D;JGE\n"
         "" // (LT_%d,\n ma non lo metto perché inutile)
         "@SP\n"
+        "A=M\n"
         "M=1\n" // *SP = 1
         "@ENDCOMP_%d\n"
         "0;JMP\n"
         "(COMP_%d)\n" // NOTLT = JGE
         "@SP\n"
+        "A=M\n"
         "M=0\n" // *SP = 0
         "(ENDCOMP_%d)\n"
         "@SP\n" //SP += 1
@@ -322,7 +353,10 @@ char *lt(char *instr) {
 
 char *and(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "and") != 0) return NULL;
+    if (strcmp(command, "and") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
@@ -337,13 +371,17 @@ char *and(char *instr) {
         "@SP\n" //SP += 1
         "M=M+1\n";
 
+    free(command);
     return strInHeap(instruction);
 }
 
 
 char *or(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "or") != 0) return NULL;
+    if (strcmp(command, "or") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
@@ -364,7 +402,10 @@ char *or(char *instr) {
 
 char *not(char *instr) {
     char *command = getWord(instr, 1);
-    if (strcmp(command, "not") != 0) return NULL;
+    if (strcmp(command, "not") != 0) {
+        free(command);
+        return NULL;
+    }
 
     char instruction[] = ""
         "@SP\n" //SP -= 1

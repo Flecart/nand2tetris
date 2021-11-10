@@ -82,7 +82,7 @@ char *getFilename(char *filename) {
     int dotIndex = getCharPosition(filename, '.');
     if (dotIndex < 0) return NULL;
     
-    char *file = (char *) malloc((dotIndex) * sizeof(char));
+    char *file = (char *) malloc((dotIndex + 1) * sizeof(char));
     file[dotIndex] = '\0';
     for (int i = 0; i < dotIndex; i++) {
         file[i] = filename[i];

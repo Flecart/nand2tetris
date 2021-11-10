@@ -9,6 +9,6 @@ char *add(char *instr);
 char *or(char *instr);
 char *not(char *instr);
 char *and(char *instr);
-char *eg(char *instr);
+char *eq(char *instr);
 char *lt(char *instr);
 char *gt(char *instr);

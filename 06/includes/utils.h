@@ -17,3 +17,6 @@ char *getWord(char *str, int nword);
 // -1 = Not FOund
 // -2 = Found double or more
 int getCharPosition(char *instruction, char target);
+
+// Gets a string and returns a heap allocation of the string
+char *strInHeap(char *str);
