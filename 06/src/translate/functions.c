@@ -57,7 +57,7 @@ char *function(char *instr) {
     char *funcName = getWord(instr, 2);
     char *funcParams = getWord(instr, 3);
     char *pushZero = push("push constant 0", "");
-    int funcParamsNum = atoi(funcParams);
+    int funcParamsNum = strToInt(funcParams);
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
@@ -88,7 +88,7 @@ char *function(char *instr) {
 char *call(char *instr) {
     char *funcName = getWord(instr, 2);
     char *funcParams = getWord(instr, 3);
-    int funcParamsNum = atoi(funcParams);
+    int funcParamsNum = strToInt(funcParams);
     char *callLabel = getCallLabel(funcName, CALL_COUNTER);
     CALL_COUNTER += 1;
     char *gotoFunc = getGotoAddr(funcName);
