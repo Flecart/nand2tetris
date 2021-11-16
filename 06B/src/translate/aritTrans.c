@@ -39,6 +39,14 @@ char *push(char *instr, char *fileName) {
         "@SP\n"
         "M=M+1\n";
 
+    // PUSH LCL ARG THIS THAT
+    char *segmentTemplate = ""
+        "@%s\n"
+        "D=M\n"
+        "@%d\n"
+        "A=D+A\n"
+        "D=M\n"
+        "%s";
     if (strcmp(segment, "constant") == 0){
         char *format = ""
             "@%d\n"
@@ -47,25 +55,13 @@ char *push(char *instr, char *fileName) {
 
         sprintf(formattedStr, format, number, addToStack, addToStack);
     } else if (strcmp(segment, "local") == 0) {
-        char *format = ""
-            "@LCL\n"
-            "D=M\n"
-            "@%d\n"
-            "A=D+A\n"
-            "D=M\n"
-            "%s";
-
-        sprintf(formattedStr, format, number, addToStack);
+        sprintf(formattedStr, segmentTemplate, "LCL", number, addToStack);
     } else if (strcmp(segment, "argument") == 0) {
-        char *format = ""
-            "@ARG\n"
-            "D=M\n"
-            "@%d\n"
-            "A=D+A\n"
-            "D=M\n"
-            "%s";
-
-        sprintf(formattedStr, format, number, addToStack);
+        sprintf(formattedStr, segmentTemplate, "ARG", number, addToStack);
+    } else if (strcmp(segment, "this") == 0) {
+        sprintf(formattedStr, segmentTemplate, "THIS", number, addToStack);
+    } else if (strcmp(segment, "that") == 0) {
+        sprintf(formattedStr, segmentTemplate, "THAT", number, addToStack);
     } else if (strcmp(segment, "static") == 0) {
         char *format = ""
             "@%s.%d\n"
@@ -73,6 +69,24 @@ char *push(char *instr, char *fileName) {
             "%s";
 
         sprintf(formattedStr, format, fileName, number, addToStack);
+    } else if (strcmp(segment, "pointer") == 0) {
+        char *format = ""
+            "@%s\n"
+            "D=M\n"
+            "%s";
+        char pointer[5];
+        if (number == 0) strcpy(pointer, "THIS");
+        else strcpy(pointer, "THAT");
+
+        sprintf(formattedStr, format, pointer, addToStack);
+    } else if (strcmp(segment, "temp") == 0) {
+        char *format = ""
+            "@5\n"
+            "D=A\n"
+            "@%d\n"
+            "D=D+A\n"
+            "%s";
+        sprintf(formattedStr, format, number, addToStack);
     } else {
         printf("Invalid segment %s\n", segment);
         free(command);
@@ -110,7 +124,7 @@ char *pop(char *instr, char *fileName) {
         "@R13\n"
         "M=D\n";
 
-    // WRITES R13 TO THE ADDRESS OF R14
+    // WRITES *R13 TO THE ADDRESS OF R14
     char *writeSegment = ""
         "@R14\n"
         "M=D\n"
@@ -120,26 +134,23 @@ char *pop(char *instr, char *fileName) {
         "A=M\n"
         "M=D\n";
 
+    // PUSH LCL ARG THIS THAT
+    char *segmentTemplate = ""
+        "%s"
+        "@%s\n"
+        "D=M\n"
+        "@%d\n"
+        "D=D+A\n"
+        "%s";
+
     if (strcmp(segment, "local") == 0) {
-        char *format = ""
-            "%s"
-            "@LCL\n"
-            "D=M\n"
-            "@%d\n"
-            "D=D+A\n"
-            "%s";
-
-        sprintf(formattedStr, format, removeFromStack, number, writeSegment);
+        sprintf(formattedStr, segmentTemplate, removeFromStack, "LCL", number, writeSegment);
     } else if (strcmp(segment, "argument") == 0) {
-        char *format = ""
-            "%s"
-            "@ARG\n"
-            "D=M\n"
-            "@%d\n"
-            "D=D+A\n"
-            "%s";
-
-        sprintf(formattedStr, format, removeFromStack, number, writeSegment);
+        sprintf(formattedStr, segmentTemplate, removeFromStack, "ARG", number, writeSegment);
+    } else if (strcmp(segment, "this") == 0) {
+        sprintf(formattedStr, segmentTemplate, removeFromStack, "THIS", number, writeSegment);
+    } else if (strcmp(segment, "that") == 0) {
+        sprintf(formattedStr, segmentTemplate, removeFromStack, "THAT", number, writeSegment);
     } else if (strcmp(segment, "static") == 0) {
         char *format = ""
             "%s"
@@ -148,6 +159,25 @@ char *pop(char *instr, char *fileName) {
             "%s";
 
         sprintf(formattedStr, format, removeFromStack, fileName, number, writeSegment);
+    } else if (strcmp(segment, "pointer") == 0) {
+        char *format = ""
+            "%s"
+            "@%s\n"
+            "M=D\n";
+        char pointer[5];
+        if (number == 0) strcpy(pointer, "THIS");
+        else strcpy(pointer, "THAT");
+
+        sprintf(formattedStr, format, removeFromStack, pointer);
+    } else if (strcmp(segment, "temp") == 0) {
+        char *format = ""
+            "%s"
+            "@5\n"
+            "D=A\n"
+            "@%d\n"
+            "D=D+A\n"
+            "%s";
+        sprintf(formattedStr, format, removeFromStack, number, writeSegment);
     } else {
         printf("Invalid segment %s\n", segment);
         free(command);

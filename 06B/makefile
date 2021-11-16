@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 CPPFLAGS = -I$(HEADERS)
 
 HEADERS = ./includes
@@ -7,7 +7,7 @@ SRC = ./src
 GENDIR = $(SRC)/main_handlers
 TRANSLATE = $(SRC)/translate
 
-OBJS = VMTranslator.o file_parser.o utils.o stackAritmetic.o aritTrans.o compiler.o programFlow.o functions.o
+OBJS = VMTranslator.o file_parser.o utils.o stackAritmetic.o aritTrans.o compiler.o programFlow.o functions.o walk_dir.o
 
 VPATH = $(SRC):$(GENDIR):$(HEADERS):$(TEST):$(TRANSLATE)
 
@@ -34,6 +34,6 @@ aritTrans.o: 		aritTrans.c			aritTrans.h
 # file input management and general utilities
 file_parser.o: 		file_parser.c 		utils.h
 utils.o: 			utils.c 			utils.h
-
+walk_dir.o:			walk_dir.c  		walk_dir.h
 clean:
 	rm $(OBJS)

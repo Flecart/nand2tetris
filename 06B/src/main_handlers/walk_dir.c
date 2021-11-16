@@ -1,8 +1,4 @@
-#include <dirent.h> 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "../../includes/walk_dir.h"
+#include "walk_dir.h"
 
 List walk_dir(char dirName[]) {
     DIR *dir;

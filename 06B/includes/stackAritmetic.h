@@ -1,5 +1,9 @@
 #pragma once
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "aritTrans.h"
+#include "utils.h"
 typedef enum {
     PUSH,
     POP,

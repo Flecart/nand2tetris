@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "stackAritmetic.h"
-#include "aritTrans.h"
-#include "utils.h"
 
 Arits getArits(char *word) {
     Arits arits = ARITS_UNKNOWN;

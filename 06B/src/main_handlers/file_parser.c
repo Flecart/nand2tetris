@@ -13,7 +13,7 @@ int isValidArg(int argc) {
     if (argc != 2) {
         printf("Error in command\n");
         printf("[Usage]\n");
-        printf("./VMTranslator [filename]\n");
+        printf("./VMTranslator [filename|dir]\n");
         return 1;
     }
     return 0;
