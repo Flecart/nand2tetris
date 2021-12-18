@@ -5,20 +5,12 @@
 // Dovresti aggiungere altri parametri al printf
 // Per lo scope di questo progetto è più semplice tenere traduzioni separate
 // Ma fai attenzione allo
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "utils.h"
-
-#ifndef MAX_SIZE
-#define MAX_SIZE 1000
-#endif
+#include "aritTrans.h"
 
 // comparison counter: global that counts the 
 // eq, lt, gt operations, useful for labels
 int COMP_CTR = 0;
-
+int counter_0 = 0;
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
@@ -34,10 +26,9 @@ char *push(char *instr, char *fileName) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char *addToStack = ""
         "@SP\n"
-        "A=M\n"
-        "M=D\n"
-        "@SP\n"
-        "M=M+1\n";
+        "M=M+1\n"
+        "A=M-1\n"
+        "M=D\n";
 
     // PUSH LCL ARG THIS THAT
     char *segmentTemplate = ""
@@ -52,7 +43,6 @@ char *push(char *instr, char *fileName) {
             "@%d\n"
             "D=A\n"
             "%s";
-
         sprintf(formattedStr, format, number, addToStack, addToStack);
     } else if (strcmp(segment, "local") == 0) {
         sprintf(formattedStr, segmentTemplate, "LCL", number, addToStack);
@@ -101,7 +91,8 @@ char *push(char *instr, char *fileName) {
     return strInHeap(formattedStr);
 }
 
-
+// 8k solo i segment
+// circa 700 pop di segment
 char *pop(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
@@ -118,8 +109,7 @@ char *pop(char *instr, char *fileName) {
     // SET THE NEW STACK POINTER AND SAVE THE VALUE TOWRITE TO R13
     char *removeFromStack = ""
         "@SP\n"
-        "M=M-1\n"
-        "A=M\n"
+        "AM=M-1\n"
         "D=M\n"
         "@R13\n"
         "M=D\n";
@@ -202,16 +192,10 @@ char *add(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n" // D= *SP
         "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D += *SP
-        "D=D+M\n"
-        "M=D\n" // *SP = D
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=A-1\n"  
+        "M=M+D\n"; // D += *SP
 
     free(command);
     return strInHeap(instruction);
@@ -226,21 +210,16 @@ char *sub(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n" // D= *SP
         "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D -= *SP
-        "D=M-D\n"
-        "M=D\n" // *SP = D
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=A-1\n"  
+        "M=M-D\n"; // D -= *SP
 
     free(command);
     return strInHeap(instruction);
 }
 
+// solo 16 righe con neg
 char *neg(char *instr) {
     char *command = getWord(instr, 1);
     if (strcmp(command, "neg") != 0) {
@@ -250,17 +229,16 @@ char *neg(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
-        "M=-M\n" // *SP = -*SP
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=M-1\n" // D= *SP
+        "M=-M\n"; // *SP = -*SP
 
     free(command);
     return strInHeap(instruction);
 }
 
 // correggi le istruzioni
+// Le comparazioni se scritte meglio tolgono circa 3k righe
+// BUONO: da ottimizzare
 char *eq(char *instr) {
     char *command = getWord(instr, 1);
     if (strcmp(command, "eq") != 0) {
@@ -271,8 +249,7 @@ char *eq(char *instr) {
 
     char format[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n"
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
@@ -311,8 +288,7 @@ char *gt(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n"
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
@@ -351,8 +327,7 @@ char *lt(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n"
         "D=M\n"
         "@SP\n" //SP -= 1
         "M=M-1\n"
@@ -390,16 +365,10 @@ char *and(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D= *SP
+        "AM=M-1\n" // D= *SP
         "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = D & *SP
-        "D=D&M\n"
-        "M=D\n" // *SP = D
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=A-1\n" // D = D & *SP
+        "M=D&M\n";
 
     free(command);
     return strInHeap(instruction);
@@ -415,16 +384,10 @@ char *or(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = *SP
+        "AM=M-1\n" // D = *SP
         "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = D | *SP
-        "D=D|M\n"
-        "M=D\n" // *SP = D
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=A-1\n" // D = D | *SP
+        "M=D|M\n";  // *SP = D
 
     free(command);
     return strInHeap(instruction);
@@ -439,11 +402,8 @@ char *not(char *instr) {
 
     char instruction[] = ""
         "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n"
-        "M=!M\n" // *SP = *SP
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "A=M-1\n"
+        "M=!M\n"; // *SP = *SP
 
     free(command);
     return strInHeap(instruction);

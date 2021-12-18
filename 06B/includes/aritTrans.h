@@ -1,4 +1,15 @@
 #pragma once
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "utils.h"
+#include "globals.h"
+
+#ifndef MAX_SIZE
+#define MAX_SIZE 1000
+#endif
+
 char *push(char *instr, char *fileName);
 char *pop(char *instr, char *fileName);
 

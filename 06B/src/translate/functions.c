@@ -5,7 +5,7 @@
 #include "utils.h"
 
 #include "aritTrans.h"
-#include "programFlow.h"
+#include "cacheFunc.h"
 
 #ifndef MAX_SIZE
 #define MAX_SIZE 1000
@@ -13,7 +13,10 @@
 
 // THIS GLOBAL COUNTS HOW MANY TIMES I'M CALLING A FUNC
 // I USE THIS TO SET FUNC LABELS
-int CALL_COUNTER = 0;
+int G_call_counter = 0;
+
+// This global tries to optimize the function call
+Cache G_cache = NULL;
 
 Funcs getFuncs(char *word) {
     Funcs funcs = FUNC_UNKNOWN;
@@ -22,6 +25,11 @@ Funcs getFuncs(char *word) {
     else if (strcmp(word, "call") == 0) funcs = CALL;
     else if (strcmp(word, "return") == 0) funcs = RETURN;
     return funcs;
+}
+
+void free_global_fun_cache() {
+    freeCache(G_cache);
+    G_cache = NULL;
 }
 
 int functions(char *line, FILE *writeToPtr) {
@@ -53,11 +61,12 @@ int functions(char *line, FILE *writeToPtr) {
     return 0;
 }
 
+// 2k righe
 char *function(char *instr) {
     char *funcName = getWord(instr, 2);
     char *funcParams = getWord(instr, 3);
-    char *pushZero = push("push constant 0", "");
     int funcParamsNum = strToInt(funcParams);
+    char *pushZero = push("push constant 0", "");
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
@@ -74,61 +83,72 @@ char *function(char *instr) {
         "%s"      // PUSH CONSTANT 0
         "@R13\n" // R13 --
         "M=M-1\n"
+        "@%s.%d\n"
+        "0;JMP\n"
         "(VARIABLES_%s.%d)\n";
 
     // che brutta cosa....
-    sprintf(formattedStr, format, funcName, funcParamsNum, funcName, funcParamsNum, funcName, funcParamsNum, pushZero, funcName, funcParamsNum);
+    sprintf(formattedStr, format, funcName, funcParamsNum, funcName, funcParamsNum, funcName, funcParamsNum, pushZero, funcName, funcParamsNum, funcName, funcParamsNum);
 
+    free(pushZero);
     free(funcName);
     free(funcParams);
-    free(pushZero);
     return strInHeap(formattedStr);
 }
 
+// Le call prendono circa 6k righe di pong
 char *call(char *instr) {
     char *funcName = getWord(instr, 2);
     char *funcParams = getWord(instr, 3);
     int funcParamsNum = strToInt(funcParams);
-    char *callLabel = getCallLabel(funcName, CALL_COUNTER);
-    CALL_COUNTER += 1;
-    char *gotoFunc = getGotoAddr(funcName);
-
-    char *pushRet = pushAddress(callLabel, 'A');
-    char *pushLCL = pushAddress("LCL", 'M');
-    char *pushARG = pushAddress("ARG", 'M');
-    char *pushTHIS = pushAddress("THIS", 'M');
-    char *pushTHAT = pushAddress("THAT", 'M');
-
-    char *gotoString = gotoCommand(gotoFunc);
+    char *callLabel = getCallLabel(funcName, G_call_counter);
+    G_call_counter += 1;
     char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = ""
-        "%s"
-        "%s"
-        "%s"
-        "%s"
-        "%s"
-        "@SP\n"
-        "D=M\n"
-        "@LCL\n"
-        "M=D\n"
-        "@%d\n" // D = SP - N - 5
-        "D=D-A\n"
-        "@ARG\n"
-        "M=D\n"
-        "%s"  //GOTO
-        "(%s)\n"; // LABEL
-    sprintf(formattedStr, format, pushRet, pushLCL, pushARG, pushTHIS, pushTHAT, funcParamsNum + 5, gotoString, callLabel);
+    char *pushRet = pushAddress(callLabel, 'A');
+    
+    if (searchCache(G_cache, funcName, funcParamsNum) == NULL) {
+        G_cache = updateCache(G_cache, funcName, funcParamsNum);
+        char *pushLCL = pushAddress("LCL", 'M');
+        char *pushARG = pushAddress("ARG", 'M');
+        char *pushTHIS = pushAddress("THIS", 'M');
+        char *pushTHAT = pushAddress("THAT", 'M');
 
+        char format[] = ""
+            "%s" // push ret_addr
+            "(%s__%d)\n"
+            "%s" // push LCL
+            "%s" // push arg
+            "%s" // push this
+            "%s" // push that
+            "@SP\n"
+            "D=M\n"
+            "@LCL\n"
+            "M=D\n"
+            "@%d\n" // D = SP - N - 5
+            "D=D-A\n"
+            "@ARG\n"
+            "M=D\n"
+            "@%s\n" //GOTO
+            "0;JMP\n"
+            "(%s)\n"; // ret_addr
+        sprintf(formattedStr, format, pushRet, funcName, funcParamsNum, pushLCL, pushARG, pushTHIS, pushTHAT, funcParamsNum + 5, funcName, callLabel);
+        free(pushLCL);
+        free(pushARG);
+        free(pushTHIS);
+        free(pushTHAT);
+    } else {
+        char format[] = ""
+            "%s" // push ret_addr
+            "@%s__%d\n"
+            "0;JMP\n"
+            "(%s)\n"; // ret_addr
+        sprintf(formattedStr, format, pushRet, funcName, funcParamsNum, callLabel);
+    }
+
+    free(pushRet);
     free(funcName);
     free(funcParams);
     free(callLabel);
-    free(gotoFunc);
-    free(pushRet);
-    free(pushLCL);
-    free(pushARG);
-    free(pushTHIS);
-    free(pushTHAT);
-    free(gotoString);
     return strInHeap(formattedStr);
 }
 
@@ -145,79 +165,17 @@ char *pushAddress(char *addressName, char mOrA) {
         "@%s\n"
         "D=%c\n"
         "@SP\n"
-        "A=M\n"
-        "M=D\n"
-        "@SP\n"
-        "M=M+1\n";
+        "M=M+1\n"
+        "A=M-1\n"
+        "M=D\n";
 
     sprintf(formattedStr, format, addressName, mOrA);
     return strInHeap(formattedStr);
 }
 
-char *getGotoAddr(char *addressName) {
-    char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = "goto %s";
-    sprintf(formattedStr, format, addressName);
-    return strInHeap(formattedStr);
-}
-
 char *returnFunction() {
-    char *assingRet = assemblyRestore("R14", 5);
-    char *restoreTHAT =  assemblyRestore("THAT", 1);
-    char *restoreTHIS =  assemblyRestore("THIS", 2);
-    char *restoreARG =  assemblyRestore("ARG", 3);
-    char *restoreLCL =  assemblyRestore("LCL", 4);
-
-    char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = ""
-        "@LCL\n" // FRAME = LCL
-        "D=M\n"
-        "@R13\n"
-        "M=D\n"
-        "%s"    //  RET = *(FRAME -5)
-        "@SP\n"  // D = POP()
-        "M=M-1\n"
-        "A=M\n"
-        "D=M\n"
-        "@ARG\n" // *ARG = D
-        "A=M\n"
-        "M=D\n"
-        "@ARG\n" // SP=ARG+1
-        "D=M+1\n"
-        "@SP\n"
-        "M=D\n"
-        "%s"    // THAT = *(FRAME - 1)
-        "%s"    // THIS = *(FRAME - 2)
-        "%s"    // ARG  = *(FRAME - 3)
-        "%s"    // LCL  = *(FRAME - 4)
-        "@R14\n" // GOTO RET
-        "A=M\n"
+    char formattedStr[] = ""
+        "@"RETURN_FUNCTION"\n"
         "0;JMP\n";
-
-    sprintf(formattedStr, format, assingRet, restoreTHAT, restoreTHIS, restoreARG, restoreLCL);
-    
-    free(assingRet);
-    free(restoreTHAT);
-    free(restoreTHIS);
-    free(restoreARG);
-    free(restoreLCL);
-
-    return strInHeap(formattedStr);
-}
-
-char *assemblyRestore(char *regName, int offset) {
-    // THIS FUNC DOES regName = *(frame - offset); in ass
-    char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = ""
-        "@R13\n" // D=*(FRAME - OFFSET)
-        "D=M\n"
-        "@%d\n"
-        "D=D-A\n"
-        "A=D\n"
-        "D=M\n"
-        "@%s\n" // REGNAME = D
-        "M=D\n";
-
-    sprintf(formattedStr, format, offset, regName);
     return strInHeap(formattedStr);
 }

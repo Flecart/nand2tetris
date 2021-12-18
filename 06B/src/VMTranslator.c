@@ -17,6 +17,7 @@ int main(int argc, char *argv[]){
         printf("Looking at File %s\n", argv[1]);
         handleFile(argv);
     }
+    free_global_fun_cache();
     return retValue;
 }
 

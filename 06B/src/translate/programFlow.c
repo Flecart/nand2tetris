@@ -65,6 +65,7 @@ char *label(char *instr) {
     return strInHeap(formattedStr);
 }
 
+// 800 righe di pong
 char *if_goto(char *instr) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);

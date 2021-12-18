@@ -21,3 +21,4 @@ char *getCallLabel(char *funcName, int nparams);
 char *pushAddress(char *addressName, char mOrA);
 char *getGotoAddr(char *addressName);
 char *assemblyRestore(char *regName, int offset);
+void free_global_fun_cache();
