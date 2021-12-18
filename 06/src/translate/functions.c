@@ -74,10 +74,12 @@ char *function(char *instr) {
         "%s"      // PUSH CONSTANT 0
         "@R13\n" // R13 --
         "M=M-1\n"
+        "@%s.%d\n"
+        "0;JMP\n"
         "(VARIABLES_%s.%d)\n";
 
     // che brutta cosa....
-    sprintf(formattedStr, format, funcName, funcParamsNum, funcName, funcParamsNum, funcName, funcParamsNum, pushZero, funcName, funcParamsNum);
+    sprintf(formattedStr, format, funcName, funcParamsNum, funcName, funcParamsNum, funcName, funcParamsNum, pushZero, funcName, funcParamsNum, funcName, funcParamsNum);
 
     free(funcName);
     free(funcParams);
