@@ -4,6 +4,7 @@
 #include "programFlow.h"
 #include "utils.h"
 
+#include "functions.h" // G_scope
 #ifndef MAX_SIZE
 #define MAX_SIZE 1000
 #endif
@@ -17,7 +18,7 @@ Flows getFlows(char *word) {
     return flows;
 }
 
-int programFlow(char *line, FILE *writeToPtr) {
+int programFlow(char *line, char* filename, FILE *writeToPtr) {
     char *firstWord = getWord(line, 1);
     if (firstWord == NULL) {
         printf("Invalid read in instruction, CHECK PROGRAM FLOW.C\n");
@@ -28,9 +29,9 @@ int programFlow(char *line, FILE *writeToPtr) {
     // printf("the first word of -%s- is -%s-\n", line, firstWord);
     Flows flows = getFlows(firstWord);
     switch(flows) {
-        case LABEL:     asmCode = label(line);          break;
-        case IF_GOTO:   asmCode = if_goto(line);        break;
-        case GOTO:      asmCode = gotoCommand(line);    break;
+        case LABEL:     asmCode = label(line, filename);          break;
+        case IF_GOTO:   asmCode = if_goto(line, filename);        break;
+        case GOTO:      asmCode = gotoCommand(line, filename);    break;
         default:
             printf("Instruction %s not valid\n", firstWord);
             free(firstWord);
@@ -47,9 +48,10 @@ int programFlow(char *line, FILE *writeToPtr) {
     return 0;
 }
 
-char *label(char *instr) {
+char *label(char *instr, char *filename) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
+    char *G_scope = getScope();
     if (strcmp(command, "label") != 0 || label == NULL) {
         free(command);
         free(label);
@@ -57,8 +59,8 @@ char *label(char *instr) {
     }
 
     char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = "(%s)\n";
-    sprintf(formattedStr, format, label);
+    char format[] = "(%s.%s_VMLABEL_%s)\n";
+    sprintf(formattedStr, format, filename, G_scope, label);
 
     free(command);
     free(label);
@@ -66,9 +68,10 @@ char *label(char *instr) {
 }
 
 // 800 righe di pong
-char *if_goto(char *instr) {
+char *if_goto(char *instr, char *filename) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
+    char *G_scope = getScope();
     if (strcmp(command, "if-goto") != 0 || label == NULL) {
         free(command);
         free(label);
@@ -78,21 +81,21 @@ char *if_goto(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
         "@SP\n"
-        "M=M-1\n"
-        "A=M\n"
+        "AM=M-1\n"
         "D=M\n"
-        "@%s\n"
+        "@%s.%s_VMLABEL_%s\n"
         "D;JNE\n"; // NON SALTARE SE È UGUALE A 0
-    sprintf(formattedStr, format, label);
+    sprintf(formattedStr, format, filename, G_scope, label);
 
     free(command);
     free(label);
     return strInHeap(formattedStr);
 }
 
-char *gotoCommand(char *instr) {
+char *gotoCommand(char *instr, char *filename) {
     char *command = getWord(instr, 1);
     char *label = getWord(instr, 2);
+    char *G_scope = getScope();
     if (strcmp(command, "goto") != 0 || label == NULL) {
         free(command);
         free(label);
@@ -100,8 +103,8 @@ char *gotoCommand(char *instr) {
     }
 
     char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = "@%s\n0;JMP\n";
-    sprintf(formattedStr, format, label);
+    char format[] = "@%s.%s_VMLABEL_%s\n0;JMP\n";
+    sprintf(formattedStr, format, filename, G_scope, label);
 
     free(command);
     free(label);

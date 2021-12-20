@@ -9,7 +9,7 @@ int handleInstruction(char *instr, char *filename, FILE *writeFilePointer) {
 
     int retCode;
     if      (arits != ARITS_UNKNOWN) retCode = aritmeticHandler(instr, filename, writeFilePointer);
-    else if (flows != FLOWS_UNKNOWN) retCode = programFlow(instr, writeFilePointer);
+    else if (flows != FLOWS_UNKNOWN) retCode = programFlow(instr, filename, writeFilePointer);
     else if (funcs != FUNC_UNKNOWN)  retCode = functions(instr, writeFilePointer);
     else if (strlen(instr) <= 0) retCode = 0;
     else {
@@ -49,4 +49,20 @@ void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename) {
        }
     } while (ch != EOF);
     return;
+}
+
+void writeProgramBegin(FILE *writeFilePtr, bool has_syscall) {
+    fprintf(writeFilePtr, ""
+        "@256\n"
+        "D=A\n"
+        "@SP\n"
+        "M=D\n");
+    if (has_syscall) {
+        char *sys_init = call("call Sys.init 0");
+        fprintf(writeFilePtr, sys_init, "");
+        fprintf(writeFilePtr, ""
+            "@Main.main\n"
+            "0;JMP\n");
+        free(sys_init);
+    }
 }

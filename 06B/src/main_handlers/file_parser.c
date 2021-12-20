@@ -26,7 +26,9 @@ int isValidName(char *filename) {
 
     bool isValid = true;
     for (int i = 0; i < strlen(validName); i++){
-        if (filename[dotPosition + i] != validName[i]) isValid = false;
+        // TODO: update project 06 too!
+        if (dotPosition + i >= strlen(filename)) isValid = false;
+        else if (filename[dotPosition + i] != validName[i]) isValid = false;
     }
     return isValid;
 }

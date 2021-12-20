@@ -15,3 +15,6 @@
 
 // Gets filename without extension
 void compile(FILE *readFilePointer, FILE *writeFilePointer, char *filename);
+
+// set stack ptr , if has_syscall set the Sys.init call
+void writeProgramBegin(FILE *writeFilePtr, bool has_syscall);

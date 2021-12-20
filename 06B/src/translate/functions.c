@@ -18,6 +18,9 @@ int G_call_counter = 0;
 // This global tries to optimize the function call
 Cache G_cache = NULL;
 
+// This global is used in program flow to take into account the scope of the single label
+char *G_scope = DEFAULT_SCOPE;
+
 Funcs getFuncs(char *word) {
     Funcs funcs = FUNC_UNKNOWN;
 
@@ -25,6 +28,10 @@ Funcs getFuncs(char *word) {
     else if (strcmp(word, "call") == 0) funcs = CALL;
     else if (strcmp(word, "return") == 0) funcs = RETURN;
     return funcs;
+}
+
+char *getScope() {
+    return G_scope;
 }
 
 void free_global_fun_cache() {
@@ -66,32 +73,39 @@ char *function(char *instr) {
     char *funcName = getWord(instr, 2);
     char *funcParams = getWord(instr, 3);
     int funcParamsNum = strToInt(funcParams);
-    char *pushZero = push("push constant 0", "");
 
     char formattedStr[MAX_SIZE] = {'\0'};
+    char moveSP[MAX_SIZE] = {'\0'};
+    // Optimize the instructions for moving the SP
+    if (funcParamsNum == 1) {
+        strcpy(moveSP, ""
+            "@SP\n"
+            "M=M+1\n"
+            "A=M-1\n");
+    } else {
+        char small_format[] = ""
+            "@%d\n"
+            "D=A\n"
+            "@SP\n"
+            "M=M+D\n"
+            "A=M-D\n";
+        sprintf(moveSP, small_format, funcParamsNum);
+    }
+
+    for (int i = 0; i < funcParamsNum; i++) {
+        strcat(moveSP, ""
+            "M=0; // setting value of function\n"
+            "A=A+1\n");
+    }
     char format[] = ""
         "(%s)\n"
-        "@%d\n"     // R13 = K (n parametri)
-        "D=A\n"
-        "@R13\n"    
-        "M=D\n"
-        "(%s.%d)\n"
-        "@R13\n"    // JUMP TO END IF R13 == 0
-        "D=M\n"
-        "@VARIABLES_%s.%d\n"
-        "D;JEQ\n"
-        "%s"      // PUSH CONSTANT 0
-        "@R13\n" // R13 --
-        "M=M-1\n"
-        "@%s.%d\n"
-        "0;JMP\n"
-        "(VARIABLES_%s.%d)\n";
+        "%s";
 
-    // che brutta cosa....
-    sprintf(formattedStr, format, funcName, funcParamsNum, funcName, funcParamsNum, funcName, funcParamsNum, pushZero, funcName, funcParamsNum, funcName, funcParamsNum);
+    sprintf(formattedStr, format, funcName, moveSP);
 
-    free(pushZero);
-    free(funcName);
+    // Set scope of the function with his name:
+    // This variable is freed when returning the function
+    G_scope = funcName;
     free(funcParams);
     return strInHeap(formattedStr);
 }
@@ -106,7 +120,21 @@ char *call(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char *pushRet = pushAddress(callLabel, 'A');
     
-    if (searchCache(G_cache, funcName, funcParamsNum) == NULL) {
+    // Attempt to cache (the values from 0-6 seems frequent) 
+    if (funcParamsNum <= FUNCTION_RANGE) {
+        G_cache = updateCache(G_cache, funcName, funcParamsNum);
+        char format[] = ""
+            "%s" // push ret_addr
+            "(%s__%d)  // begin hardcoded f call\n"
+            "@%s\n" //GOTO, coded before
+            "D=A\n"
+            "@R13\n"
+            "M=D\n"
+            "@"FUNCTION_CALL"$%d\n"
+            "0;JMP\n"
+            "(%s)\n"; // ret_addr
+        sprintf(formattedStr, format, pushRet, funcName, funcParamsNum, funcName, funcParamsNum, callLabel);
+    } else if (searchCache(G_cache, funcName, funcParamsNum) == NULL) {
         G_cache = updateCache(G_cache, funcName, funcParamsNum);
         char *pushLCL = pushAddress("LCL", 'M');
         char *pushARG = pushAddress("ARG", 'M');
@@ -115,7 +143,7 @@ char *call(char *instr) {
 
         char format[] = ""
             "%s" // push ret_addr
-            "(%s__%d)\n"
+            "(%s__%d)  // begin function call\n"
             "%s" // push LCL
             "%s" // push arg
             "%s" // push this
@@ -154,7 +182,7 @@ char *call(char *instr) {
 
 char *getCallLabel(char *funcName, int counter) {
     char formattedStr[MAX_SIZE] = {'\0'};
-    char format[] = "CALL_%s.%d";
+    char format[] = "CALL_%s$%d";
     sprintf(formattedStr, format, funcName, counter);
     return strInHeap(formattedStr);
 }
@@ -177,5 +205,10 @@ char *returnFunction() {
     char formattedStr[] = ""
         "@"RETURN_FUNCTION"\n"
         "0;JMP\n";
+
+    if (strcmp(G_scope, DEFAULT_SCOPE) != 0) {
+        free(G_scope);
+    }
+    G_scope = DEFAULT_SCOPE;
     return strInHeap(formattedStr);
 }

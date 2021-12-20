@@ -25,6 +25,7 @@ Cache searchCache(Cache cache, char funcName[], int numArgs) {
 }
 
 void freeCache(Cache cache) {
+    if (cache == NULL) return;
     Cache next = cache; 
     do
     {

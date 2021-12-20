@@ -23,3 +23,7 @@ char *and(char *instr);
 char *eq(char *instr);
 char *lt(char *instr);
 char *gt(char *instr);
+
+// Used for optimization.
+// Returns the offset instruction on the heap
+char *offsetBuilder(char MorA, int number_offset);

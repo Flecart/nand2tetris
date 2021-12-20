@@ -32,12 +32,10 @@ char *push(char *instr, char *fileName) {
 
     // PUSH LCL ARG THIS THAT
     char *segmentTemplate = ""
-        "@%s\n"
+        "@%s\n" // seg name
+        "%s"    // offset builder
         "D=M\n"
-        "@%d\n"
-        "A=D+A\n"
-        "D=M\n"
-        "%s";
+        "%s";   // add to stack
     if (strcmp(segment, "constant") == 0){
         char *format = ""
             "@%d\n"
@@ -45,13 +43,21 @@ char *push(char *instr, char *fileName) {
             "%s";
         sprintf(formattedStr, format, number, addToStack, addToStack);
     } else if (strcmp(segment, "local") == 0) {
-        sprintf(formattedStr, segmentTemplate, "LCL", number, addToStack);
+        char *offset_str = offsetBuilder('A', number);
+        sprintf(formattedStr, segmentTemplate, "LCL", offset_str, addToStack);
+        free(offset_str);
     } else if (strcmp(segment, "argument") == 0) {
-        sprintf(formattedStr, segmentTemplate, "ARG", number, addToStack);
+        char *offset_str = offsetBuilder('A', number);
+        sprintf(formattedStr, segmentTemplate, "ARG", offset_str, addToStack);
+        free(offset_str);
     } else if (strcmp(segment, "this") == 0) {
-        sprintf(formattedStr, segmentTemplate, "THIS", number, addToStack);
+        char *offset_str = offsetBuilder('A', number);
+        sprintf(formattedStr, segmentTemplate, "THIS", offset_str, addToStack);
+        free(offset_str);
     } else if (strcmp(segment, "that") == 0) {
-        sprintf(formattedStr, segmentTemplate, "THAT", number, addToStack);
+        char *offset_str = offsetBuilder('A', number);
+        sprintf(formattedStr, segmentTemplate, "THAT", offset_str, addToStack);
+        free(offset_str);
     } else if (strcmp(segment, "static") == 0) {
         char *format = ""
             "@%s.%d\n"
@@ -106,49 +112,52 @@ char *pop(char *instr, char *fileName) {
     int number = strToInt(strNumber);
 
     char formattedStr[MAX_SIZE] = {'\0'};
-    // SET THE NEW STACK POINTER AND SAVE THE VALUE TOWRITE TO R13
-    char *removeFromStack = ""
-        "@SP\n"
-        "AM=M-1\n"
-        "D=M\n"
-        "@R13\n"
-        "M=D\n";
-
-    // WRITES *R13 TO THE ADDRESS OF R14
-    char *writeSegment = ""
+    // SAVES ADDRESS TO WRITE IN R14
+    // THEN WRITES THE FIRST VALUE OF STACK TO IT
+    char *popSegmentStack = ""
         "@R14\n"
         "M=D\n"
-        "@R13\n"
+        "@SP\n"
+        "AM=M-1\n"
         "D=M\n"
         "@R14\n"
         "A=M\n"
         "M=D\n";
 
-    // PUSH LCL ARG THIS THAT
+    char *removeFromStack = ""
+        "@SP\n"
+        "AM=M-1\n"
+        "D=M\n";
+
+    // POP LCL ARG THIS THAT
     char *segmentTemplate = ""
-        "%s"
-        "@%s\n"
-        "D=M\n"
-        "@%d\n"
-        "D=D+A\n"
-        "%s";
+        "@%s\n" // segment
+        "%s"    // offset builder
+        "%s";   // pop
 
     if (strcmp(segment, "local") == 0) {
-        sprintf(formattedStr, segmentTemplate, removeFromStack, "LCL", number, writeSegment);
+        char *offset_str = offsetBuilder('D', number);
+        sprintf(formattedStr, segmentTemplate, "LCL", offset_str, popSegmentStack);
+        free(offset_str);
     } else if (strcmp(segment, "argument") == 0) {
-        sprintf(formattedStr, segmentTemplate, removeFromStack, "ARG", number, writeSegment);
+        char *offset_str = offsetBuilder('D', number);
+        sprintf(formattedStr, segmentTemplate, "ARG", offset_str, popSegmentStack);
+        free(offset_str);
     } else if (strcmp(segment, "this") == 0) {
-        sprintf(formattedStr, segmentTemplate, removeFromStack, "THIS", number, writeSegment);
+        char *offset_str = offsetBuilder('D', number);
+        sprintf(formattedStr, segmentTemplate, "THIS", offset_str, popSegmentStack);
+        free(offset_str);
     } else if (strcmp(segment, "that") == 0) {
-        sprintf(formattedStr, segmentTemplate, removeFromStack, "THAT", number, writeSegment);
+        char *offset_str = offsetBuilder('D', number);
+        sprintf(formattedStr, segmentTemplate, "THAT", offset_str, popSegmentStack);
+        free(offset_str);
     } else if (strcmp(segment, "static") == 0) {
         char *format = ""
             "%s"
             "@%s.%d\n"
-            "D=A\n"
-            "%s";
+            "M=D\n";
 
-        sprintf(formattedStr, format, removeFromStack, fileName, number, writeSegment);
+        sprintf(formattedStr, format, removeFromStack, fileName, number);
     } else if (strcmp(segment, "pointer") == 0) {
         char *format = ""
             "%s"
@@ -161,13 +170,12 @@ char *pop(char *instr, char *fileName) {
         sprintf(formattedStr, format, removeFromStack, pointer);
     } else if (strcmp(segment, "temp") == 0) {
         char *format = ""
-            "%s"
             "@5\n"
             "D=A\n"
             "@%d\n"
             "D=D+A\n"
             "%s";
-        sprintf(formattedStr, format, removeFromStack, number, writeSegment);
+        sprintf(formattedStr, format, number, popSegmentStack);
     } else {
         printf("Invalid segment %s\n", segment);
         free(command);
@@ -248,30 +256,15 @@ char *eq(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
 
     char format[] = ""
-        "@SP\n" //SP -= 1
-        "AM=M-1\n"
-        "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = *SP - D
-        "D=M-D\n"
-        "@COMP_%d\n"
-        "D;JNE\n"
-        "" // (EQ_%d,\n ma non lo metto perché inutile)
-        "@SP\n"
-        "A=M\n"
-        "M=1\n" // *SP = 1
-        "@ENDCOMP_%d\n"
+        "@COMP$%d\n" //save return address
+        "D=A\n"
+        "@R13\n"
+        "M=D\n"
+        "@"JUMP_EQUAL"\n" // jump on that instruction
         "0;JMP\n"
-        "(COMP_%d)\n" // NOTEQ
-        "@SP\n"
-        "A=M\n"
-        "M=0\n" // *SP = 0
-        "(ENDCOMP_%d)\n"
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "(COMP$%d)\n";
 
-    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
     free(command);
@@ -287,30 +280,15 @@ char *gt(char *instr) {
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
-        "@SP\n" //SP -= 1
-        "AM=M-1\n"
-        "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = *SP - D
-        "D=M-D\n"
-        "@COMP_%d\n"
-        "D;JLE\n"
-        "" // (GT%d,\n ma non lo metto perché inutile)
-        "@SP\n"
-        "A=M\n"
-        "M=1\n" // *SP = 1
-        "@ENDCOMP_%d\n"
+        "@COMP$%d\n" //save return address
+        "D=A\n"
+        "@R13\n"
+        "M=D\n"
+        "@"JUMP_GREATER"\n" // jump on that instruction
         "0;JMP\n"
-        "(COMP_%d)\n" // NOTJGT = JLE
-        "@SP\n"
-        "A=M\n"
-        "M=0\n" // *SP = 0
-        "(ENDCOMP_%d)\n"
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "(COMP$%d)\n";
 
-    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
     free(command);
@@ -326,30 +304,15 @@ char *lt(char *instr) {
 
     char formattedStr[MAX_SIZE] = {'\0'};
     char format[] = ""
-        "@SP\n" //SP -= 1
-        "AM=M-1\n"
-        "D=M\n"
-        "@SP\n" //SP -= 1
-        "M=M-1\n"
-        "A=M\n" // D = *SP - D
-        "D=M-D\n"
-        "@COMP_%d\n"
-        "D;JGE\n"
-        "" // (LT_%d,\n ma non lo metto perché inutile)
-        "@SP\n"
-        "A=M\n"
-        "M=1\n" // *SP = 1
-        "@ENDCOMP_%d\n"
+        "@COMP$%d\n" //save return address
+        "D=A\n"
+        "@R13\n"
+        "M=D\n"
+        "@"JUMP_LESS"\n" // jump on that instruction
         "0;JMP\n"
-        "(COMP_%d)\n" // NOTLT = JGE
-        "@SP\n"
-        "A=M\n"
-        "M=0\n" // *SP = 0
-        "(ENDCOMP_%d)\n"
-        "@SP\n" //SP += 1
-        "M=M+1\n";
+        "(COMP$%d)\n";
 
-    sprintf(formattedStr, format, COMP_CTR, COMP_CTR, COMP_CTR, COMP_CTR);
+    sprintf(formattedStr, format, COMP_CTR, COMP_CTR);
     COMP_CTR += 1;
 
     free(command);
@@ -407,4 +370,26 @@ char *not(char *instr) {
 
     free(command);
     return strInHeap(instruction);
+}
+
+char *offsetBuilder(char DorMorA, int number_offset) {
+    // Just choosing the right number for the offset!
+    if (number_offset < 0 || (DorMorA != 'M' && DorMorA != 'A' && DorMorA != 'D')) return NULL;
+    char formattedStr[MAX_SIZE] = {'\0'};
+
+    char *format_zero = "%c=M\n";
+    char *format_one = "%c=M+1\n";
+    char *format_general = ""
+        "D=M\n"
+        "@%d\n"
+        "%c=D+A\n";
+
+    if (number_offset == 0) {
+        sprintf(formattedStr, format_zero, DorMorA);
+    } else if (number_offset == 1) {
+        sprintf(formattedStr, format_one, DorMorA);
+    } else {
+        sprintf(formattedStr, format_general, number_offset, DorMorA);
+    }
+    return strInHeap(formattedStr);
 }

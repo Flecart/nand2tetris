@@ -9,8 +9,8 @@ typedef enum {
 
 Flows getFlows(char *word);
 
-int programFlow(char *line, FILE *writeToPtr);
+int programFlow(char *line, char *filename, FILE *writeToPtr);
 
-char *label(char *instruction);
-char *if_goto(char *instruction);
-char *gotoCommand(char *instruction);
+char *label(char *instruction, char *filename);
+char *if_goto(char *instruction, char *filename);
+char *gotoCommand(char *instruction, char *filename);

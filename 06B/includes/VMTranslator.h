@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "compiler.h"
 
+#include "globals.h"
 #define false 0
 #define true 1
 

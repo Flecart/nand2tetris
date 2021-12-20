@@ -1,6 +1,7 @@
 #pragma once 
 #include <stdio.h>
 
+#define DEFAULT_SCOPE "DEFAULT_SCOPE"
 typedef enum {
     FUNCTION,
     RETURN,
@@ -22,3 +23,7 @@ char *pushAddress(char *addressName, char mOrA);
 char *getGotoAddr(char *addressName);
 char *assemblyRestore(char *regName, int offset);
 void free_global_fun_cache();
+
+// Allows other programs to access the current scope
+// Freed is not needed in the calling program, it's handled by this module
+char *getScope();

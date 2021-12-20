@@ -38,13 +38,15 @@ void handleFile(char *argv[]) {
         printf("File %s could not be written\n", writeFilename);
         return;
     }
-    fprintf(writeFilePtr, "@256\nD=A\n@R0\nM=D\n"); // SET STANDARD SP POINTER
+    writeProgramBegin(writeFilePtr, false);
     compile(readFilePtr, writeFilePtr, filename);
+    fprintf(writeFilePtr, "(END_LOOP$END)\n@END_LOOP$END\n0;JMP\n"); // LOOP THE PROGRAM BEFORE THE GLOBALS!
+    write_globals(writeFilePtr);
+
     fclose(readFilePtr);
     fclose(writeFilePtr);
     free(writeFilename);
     free(filename);
-
     return;
 }
 
@@ -60,10 +62,11 @@ void handleDirectory(List dirs, char *dir) {
 
     bool hasError = false;
     FILE *out = fopen(writeFilename, "w");
+    writeProgramBegin(out, true);
     while (next->next != NULL && !hasError) {
         if (isValidName(next->name)) {
             char *name = strCat(rightDirname, next->name);
-            printf("Trying to compile %s\n", name);
+            printf("Compiling file: %s\n", name);
             char *noExtensionName = getFilename(next->name);
             FILE *in;
             if ((in = fopen(name, "r")) == NULL) {
@@ -77,6 +80,9 @@ void handleDirectory(List dirs, char *dir) {
         }
         next = next->next;
     }
+    fprintf(out, "@256\nD=A\n@R0\nM=D\n"); // SET STANDARD SP POINTER
+    write_globals(out);
+    fprintf(out, "(END_LOOP$END)\n@END_LOOP$END\n0;JMP\n"); // LOOP THE PROGRAM BEFORE THE GLOBALS!
     fclose(out);
     free(writeFilename);
     free(rightDirname);
