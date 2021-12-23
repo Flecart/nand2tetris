@@ -124,7 +124,7 @@ char *call(char *instr) {
     char *pushRet = pushAddress(callLabel, 'A');
     
     // Attempt to cache (the values from 0-6 seems frequent) 
-    if (funcParamsNum <= FUNCTION_RANGE) {
+    if (funcParamsNum <= FUNCTION_RANGE && searchCache(G_cache, funcName, funcParamsNum) == NULL) {
         G_cache = updateCache(G_cache, funcName, funcParamsNum);
         char format[] = ""
             "%s" // push ret_addr
@@ -137,7 +137,7 @@ char *call(char *instr) {
             "0;JMP\n"
             "(%s)\n"; // ret_addr
         sprintf(formattedStr, format, pushRet, funcName, funcParamsNum, funcName, funcParamsNum, callLabel);
-    } else if (searchCache(G_cache, funcName, funcParamsNum) == NULL) {
+    } else if (funcParamsNum > FUNCTION_RANGE && searchCache(G_cache, funcName, funcParamsNum) == NULL) {
         G_cache = updateCache(G_cache, funcName, funcParamsNum);
         char *pushLCL = pushAddress("LCL", 'M');
         char *pushARG = pushAddress("ARG", 'M');

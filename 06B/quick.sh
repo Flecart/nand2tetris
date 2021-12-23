@@ -2,7 +2,9 @@
 # make
 # mv ./VMTranslator ./correzioni/easy_test
 # cd ./correzioni/easy_test
-# ./VMTranslator TempTest.vm 
+# ./VMTranslator FlowTest.vm @ FUNZIONA
+# ./VMTranslator PointerTest.vm # FUNZIONA
+# ./VMTranslator TempTest.vm # FUNZIONA
 # ./VMTranslator FibonacciElement.vm # FUNZIONA
 # ./VMTranslator StaticTest.vm # FUNZIONA
 # ./VMTranslator Basicloop.vm # FUNZIONA

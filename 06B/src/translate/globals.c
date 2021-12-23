@@ -171,7 +171,7 @@ const char G_funcCall[] = ""
 
 void write_globals(FILE *writeFilePtr) {
     fprintf(writeFilePtr, "// START GLOBAL SECTION\n");
-    for (int i = 0; i < FUNCTION_RANGE; i++) {
+    for (int i = 0; i <= FUNCTION_RANGE; i++) {
         fprintf(writeFilePtr, G_funcCall, i, i + 5);
     }
     const char *others[] = {G_jumpLess, G_jumpGreater, G_jumpEq, G_funcReturn, G_return};
