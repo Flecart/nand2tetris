@@ -77,6 +77,9 @@ char *function(char *instr) {
     char formattedStr[MAX_SIZE] = {'\0'};
     char moveSP[MAX_SIZE] = {'\0'};
     // Optimize the instructions for moving the SP
+    // TODO: se hai bisogno di altro spazio ancora
+    // Puoi fare il caso in cui il n di argomenti è 0
+    // Allora puoi proprio non far niente per moveSP
     if (funcParamsNum == 1) {
         strcpy(moveSP, ""
             "@SP\n"
@@ -203,7 +206,7 @@ char *pushAddress(char *addressName, char mOrA) {
 
 char *returnFunction() {
     char formattedStr[] = ""
-        "@"RETURN_FUNCTION"\n"
+        "@"RETURN_FUNCTION" // RETURN\n"
         "0;JMP\n";
 
     if (strcmp(G_scope, DEFAULT_SCOPE) != 0) {

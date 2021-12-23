@@ -10,7 +10,7 @@
 // comparison counter: global that counts the 
 // eq, lt, gt operations, useful for labels
 int COMP_CTR = 0;
-int counter_0 = 0;
+
 char *push(char *instr, char *fileName) {
     char *command = getWord(instr, 1);
     char *segment = getWord(instr, 2);
@@ -77,12 +77,11 @@ char *push(char *instr, char *fileName) {
         sprintf(formattedStr, format, pointer, addToStack);
     } else if (strcmp(segment, "temp") == 0) {
         char *format = ""
-            "@5\n"
-            "D=A\n"
-            "@%d\n"
-            "D=D+A\n"
-            "%s";
-        sprintf(formattedStr, format, number, addToStack);
+            "@%d\n" // tmp segment, supposing its valid
+            "D=M\n"
+            "%s"; // addto stack
+        
+        sprintf(formattedStr, format, 5 + number, addToStack);
     } else {
         printf("Invalid segment %s\n", segment);
         free(command);
@@ -170,12 +169,10 @@ char *pop(char *instr, char *fileName) {
         sprintf(formattedStr, format, removeFromStack, pointer);
     } else if (strcmp(segment, "temp") == 0) {
         char *format = ""
-            "@5\n"
-            "D=A\n"
+            "%s" // remove from stack, into D
             "@%d\n"
-            "D=D+A\n"
-            "%s";
-        sprintf(formattedStr, format, number, popSegmentStack);
+            "M=D\n";
+        sprintf(formattedStr, format, removeFromStack, 5 + number);
     } else {
         printf("Invalid segment %s\n", segment);
         free(command);

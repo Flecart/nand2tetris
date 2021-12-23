@@ -25,15 +25,11 @@ Cache searchCache(Cache cache, char funcName[], int numArgs) {
 }
 
 void freeCache(Cache cache) {
-    if (cache == NULL) return;
-    Cache next = cache; 
-    do
-    {
-        cache = next->next;
-        free(next->name);
-        free(next);
-        next = cache;
-    } while (next->next != NULL);
-    free(next); // nobody has freed the last next!
+    while (cache != NULL) {
+        Cache tmp = cache->next;
+        free(cache->name);
+        free(cache);
+        cache = tmp;
+    }
     return;
 }

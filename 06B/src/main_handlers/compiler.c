@@ -60,9 +60,6 @@ void writeProgramBegin(FILE *writeFilePtr, bool has_syscall) {
     if (has_syscall) {
         char *sys_init = call("call Sys.init 0");
         fprintf(writeFilePtr, sys_init, "");
-        fprintf(writeFilePtr, ""
-            "@Main.main\n"
-            "0;JMP\n");
         free(sys_init);
     }
 }
