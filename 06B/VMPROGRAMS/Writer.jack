@@ -1,0 +1,39 @@
+class Writer {
+    static String buffer;
+    function void init() {
+        let buffer = String.new(20);
+        do Cursor.showCursor(true);
+        return;
+    }
+
+    function void write() {
+        var char key;
+        var boolean exit;
+        while (~exit) {
+            // wait for key pressed
+            while ((key = 0)) {
+                let key = Keyboard.keyPressed();
+            }
+            do Cursor.advance(key);
+            do Output.printChar(key);
+
+            // gestire il caso backspace che va in su.
+            if (key = 129) { 
+                // BUG-INFO: printChar elimina il cursore
+                // lo devo riprintare
+                do Cursor.showCursor(true);
+            } 
+            // continue to write until esc is pressed
+            if (key = 140) {
+                let exit = true;
+            } 
+            
+
+            // wait for key to be released
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+            }
+        }
+        return;
+    }
+}

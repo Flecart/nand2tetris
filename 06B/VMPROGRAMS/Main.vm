@@ -1,0 +1,11 @@
+function Main.main 1
+call Screen.clearScreen 0
+pop temp 0
+call Cursor.init 0
+pop temp 0
+call Writer.init 0
+pop temp 0
+call Writer.write 0
+pop temp 0
+push constant 0
+return

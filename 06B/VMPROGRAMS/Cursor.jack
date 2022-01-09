@@ -1,0 +1,129 @@
+class Cursor {
+    static int height, width; // heigth and width of the characters
+    static int x_max, y_max; // maximum number of characters in a row and columns
+    static int blink_time;
+    // High interface for the cursor position
+    static int x;
+    static int y;
+    static Array nCharLine;
+
+    function void init() {
+        var int i;
+        let x = 0;
+        let y = 0;
+
+        // set static
+        let height = 11;
+        let width = 8;
+        let x_max = 63;
+        let y_max = 21;
+        let blink_time = 10;
+
+        // set char lines
+        // move this later in VM!
+        let nCharLine = Array.new(y_max);
+        let i = 0;
+        while (i < y_max) {
+            let nCharLine[i] = 0;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void showCursor(boolean is_black) {
+        do Screen.setColor(is_black);
+        do Screen.drawLine(x * width, y * height , x*width, y * height + height);
+        return;
+    }
+
+    function void blink() {
+        // BUG: has some problems with timing
+        // and slow the program
+        do Cursor.showCursor(true);
+        do Sys.wait(blink_time);
+        do Cursor.showCursor(false);
+        return;
+    }
+
+    function void move_cursor(int Ax, int Ay) {
+        let x = Ax;
+        let y = Ay;
+        do Output.moveCursor(x, y);
+        return;
+    }
+
+    function void advance(int key) {
+        do Cursor.showCursor(false);
+            
+        if (key = 129) { // backspace
+            do Cursor.stepCursor(false);
+        } 
+
+        if (key = 128) { // newline
+            do Cursor.stepLine(true);
+            do Output.printString("test");
+        }
+
+        if (~(key = 129) & ~(key = 128)) {
+            do Cursor.stepCursor(true);
+        }
+
+        do Cursor.showCursor(true);
+        return;
+    }
+
+    function void stepCursor(boolean isAdvancing) {
+        if (isAdvancing) {
+            if (x < x_max) {
+                let x = x + 1;
+            } else {
+                let x = 0;
+                do Cursor.stepLine(true);
+            }
+        } else {
+            if (x > 0) {
+                let x = x - 1;
+            } else {
+                let x = x_max;
+                do Cursor.stepLine(false);
+            }
+        }
+        // 64 caratteri per riga
+        // 23 caratteri per colonna
+        // Should determine the maximum
+        // if x = max then y + 1 else x + 1
+        // if overflow call new page
+        return;
+    }
+
+    function void stepLine(boolean isAdvancing) {
+        let nCharLine[y] = x;
+        if (isAdvancing) {
+            if (y < y_max) {
+                let y = y + 1;
+                let x = nCharLine[y];
+            } else {
+                let y = 0;
+                let x = nCharLine[y];
+                // TODO: modificare questo punto per dare errore nel caso abbia finito le linee
+            }
+        } else {
+            if (y > 0) {
+                let y = y - 1;
+                let x = nCharLine[y];
+            }
+        }
+        do Output.moveCursor(y, x);
+        
+        return;
+    }
+
+    // TODO: creare handlers per spostare il cursore nel caso debba scrivere
+    // messaggi di logging in fonto allo schermo
+}
+
+// TEST:
+// 1. back space and avanti fatti bene
+// 2. Il ritorno a fine riga (overflow?)
+// 3. il ritorno a fine screen
+// 4. niente se backspace all'inizio.

@@ -1,0 +1,11 @@
+class Main {
+    function void main() {
+        var Cursor cursor;
+        do Screen.clearScreen();
+
+        do Cursor.init();
+        do Writer.init();
+        do Writer.write();
+        return;
+    }
+}

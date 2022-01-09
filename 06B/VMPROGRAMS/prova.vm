@@ -1,0 +1,24 @@
+push constant 10
+push constant 12
+call fux 2
+
+call prova.f 2
+function f 0
+label loop 
+push argument 0
+push constant 0
+gt 
+not
+if-goto end 
+push constant 3
+push argument 1
+add
+pop argument 1
+push argument 0
+push constant 2
+sub 
+pop argument 0
+goto loop 
+label end 
+push argument 0
+return 
